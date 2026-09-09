@@ -148,8 +148,8 @@ function ProductContent({ product }) {
             .list()
             .filter((p) => p.id !== product.id)
             .slice(0, 4)
-            .map((p) => (
-              <ProductCard key={p.id} product={p} />
+            .map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} />
             ))}
         </div>
       </section>

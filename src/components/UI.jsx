@@ -1,29 +1,16 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { TextReveal } from "./ScrollMotion";
+export { Reveal, TextReveal } from "./ScrollMotion";
 import { ArrowLeft, Plus, Minus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { money } from "../utils/shop";
 
-export function Reveal({ children, className = "", delay = 0 }) {
-  const reduced = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      initial={reduced ? false : { opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: 0.55, delay }}
-    >
-      {children}
-    </motion.div>
-  );
-}
 export function Heading({ eyebrow, title, link, to = "/shop" }) {
   return (
     <div className="section-heading">
-      <div>
+      <TextReveal>
         <span className="eyebrow">{eyebrow}</span>
         <h2>{title}</h2>
-      </div>
+      </TextReveal>
       {link && (
         <Link className="text-link" to={to}>
           {link}

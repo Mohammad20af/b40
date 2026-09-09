@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { branches } from "../data/branches";
 import BranchCard from "../components/BranchCard";
+import { TextReveal } from "../components/ScrollMotion";
 export default function Contact() {
   const [id, setId] = useState(branches[0].id);
   const index = branches.findIndex((b) => b.id === id);
   return (
     <div className="container page contact-layout">
-      <div className="page-heading">
+      <TextReveal className="page-heading">
         <span className="eyebrow">حديث بسيط. إطلالة مختلفة.</span>
         <h1>
           نحكي <span className="accent">ستايل؟</span>
@@ -30,7 +31,7 @@ export default function Contact() {
             ))}
           </select>
         </label>
-      </div>
+      </TextReveal>
       <BranchCard branch={branches[index]} index={index} />
     </div>
   );

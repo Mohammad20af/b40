@@ -17,7 +17,8 @@ import {
   Camera as Instagram,
 } from "lucide-react";
 import { useRef } from "react";
-import { Reveal, Heading } from "../components/UI";
+import { Reveal, Heading, TextReveal } from "../components/UI";
+import { ParallaxImage } from "../components/ScrollMotion";
 import ProductCard from "../components/ProductCard";
 import { catalogService } from "../services/store";
 import { branches } from "../data/branches";
@@ -47,7 +48,7 @@ export default function Home() {
       <section className="hero" ref={hero}>
         <div className="hero-grid container">
           <div className="hero-copy">
-            <Reveal>
+            <TextReveal>
               <span className="eyebrow">
                 <span className="live-dot" /> حضورك. بأسلوبك.
               </span>
@@ -74,7 +75,7 @@ export default function Home() {
               <div className="hero-note">
                 <span>01 —</span> إطلالتك القادمة بانتظارك
               </div>
-            </Reveal>
+            </TextReveal>
           </div>
           <motion.div
             className="hero-art"
@@ -133,22 +134,20 @@ export default function Home() {
         />
         <div className="product-grid">
           {products.slice(0, 4).map((p, i) => (
-            <Reveal key={p.id} delay={i * 0.06}>
-              <ProductCard product={p} />
-            </Reveal>
+            <ProductCard key={p.id} product={p} index={i} />
           ))}
         </div>
       </section>
       <section className="container collections">
         <Reveal className="collection collection-clothes">
-          <img
+          <ParallaxImage
             src="/images/editorial.jpg"
             alt="إطلالة ستريت وير عصرية"
             loading="lazy"
             width="1000"
             height="1100"
           />
-          <div>
+          <TextReveal delay={0.12}>
             <span className="eyebrow">أسلوبك، بدون حدود</span>
             <h2>
               البسها
@@ -159,17 +158,17 @@ export default function Home() {
               تشكيلة الملابس
               <ArrowUpLeft size={19} />
             </Link>
-          </div>
+          </TextReveal>
         </Reveal>
         <Reveal className="collection collection-shoes">
-          <img
+          <ParallaxImage
             src="/images/shoe2.jpg"
             alt="تشكيلة الأحذية الرياضية"
             loading="lazy"
             width="900"
             height="1100"
           />
-          <div>
+          <TextReveal delay={0.18}>
             <span className="eyebrow">خطوة تسبق الكل</span>
             <h2>
               كل خطوة.
@@ -180,7 +179,7 @@ export default function Home() {
               تشكيلة الأحذية
               <ArrowUpLeft size={19} />
             </Link>
-          </div>
+          </TextReveal>
         </Reveal>
       </section>
       <section className="section container">
@@ -194,14 +193,12 @@ export default function Home() {
             .filter((p) => p.featured)
             .slice(2, 6)
             .map((p, i) => (
-              <Reveal key={p.id} delay={i * 0.05}>
-                <ProductCard product={p} />
-              </Reveal>
+              <ProductCard key={p.id} product={p} index={i} />
             ))}
         </div>
       </section>
       <Reveal className="promo">
-        <div className="container promo-inner">
+        <TextReveal className="container promo-inner" delay={0.1}>
           <span className="eyebrow">تفاصيل أكثر. حضور أقوى.</span>
           <h2>
             مو بس لبس.
@@ -215,7 +212,7 @@ export default function Home() {
           <span className="promo-mark" aria-hidden="true">
             B40
           </span>
-        </div>
+        </TextReveal>
       </Reveal>
       <section className="section container">
         <Heading
@@ -224,7 +221,7 @@ export default function Home() {
           link="كل الفروع"
           to="/branches"
         />
-        <div className="branch-preview">
+        <Reveal className="branch-preview">
           {branches.map((b, i) => (
             <Link key={b.id} to="/branches">
               <span className="muted">0{i + 1}</span>
@@ -232,14 +229,14 @@ export default function Home() {
               <ArrowUpLeft />
             </Link>
           ))}
-        </div>
+        </Reveal>
       </section>
-      <section className="instagram-section container">
-        <div>
+      <Reveal as="section" className="instagram-section container">
+        <TextReveal>
           <Instagram size={28} />
           <h2>الإطلالة تكمل فيك.</h2>
           <p>تابعنا، وخليك أول من يشوف الجديد.</p>
-        </div>
+        </TextReveal>
         <div className="social-handles">
           {branches.map((b) => (
             <a
@@ -253,8 +250,8 @@ export default function Home() {
             </a>
           ))}
         </div>
-      </section>
-      <div className="benefits container">
+      </Reveal>
+      <TextReveal className="benefits container">
         <span>
           <Truck size={20} /> توصيل إلى بابك
         </span>
@@ -264,7 +261,7 @@ export default function Home() {
         <span>
           <ShoppingIcon /> ثلاثة فروع. ستايل واحد.
         </span>
-      </div>
+      </TextReveal>
     </>
   );
 }

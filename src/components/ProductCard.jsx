@@ -1,16 +1,20 @@
 import { Link } from "react-router-dom";
 import { Plus, ArrowUpLeft } from "lucide-react";
 import { Price } from "./UI";
+import { Reveal, ImageReveal } from "./ScrollMotion";
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, index = 0 }) {
+  const delay = (index % 4) * 0.055;
   return (
-    <article className="product-card">
+    <Reveal as="article" className="product-card" delay={delay}>
       <Link
         className="product-photo"
         to={`/product/${product.id}`}
         aria-label={`عرض ${product.name}`}
       >
-        <img
+        <ImageReveal
+          delay={delay + 0.04}
+          hoverScale={1.055}
           src={product.images[0]}
           alt={product.name}
           loading="lazy"
@@ -40,6 +44,6 @@ export default function ProductCard({ product }) {
         <Link to={`/product/${product.id}`}>{product.name}</Link>
       </h3>
       <Price product={product} />
-    </article>
+    </Reveal>
   );
 }

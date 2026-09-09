@@ -5,6 +5,7 @@ import ProductCard from "../components/ProductCard";
 import { categories } from "../data/products";
 import { catalogService } from "../services/store";
 import { filterProducts, money } from "../utils/shop";
+import { TextReveal } from "../components/ScrollMotion";
 
 export default function Shop() {
   const [params, setParams] = useSearchParams();
@@ -30,13 +31,13 @@ export default function Shop() {
   const results = filterProducts(catalogService.list(), filters);
   return (
     <div className="container page">
-      <div className="page-heading">
+      <TextReveal className="page-heading">
         <span className="eyebrow">اكتشف ما يشبهك</span>
         <h1>
           كل قطعة. <span className="accent">حكاية.</span>
         </h1>
         <p>ملابس وأحذية تختارها على طريقتك.</p>
-      </div>
+      </TextReveal>
       <div className="shop-toolbar">
         <label className="search">
           <Search size={19} />
@@ -146,8 +147,8 @@ export default function Shop() {
           </p>
           {results.length ? (
             <div className="product-grid shop-products">
-              {results.map((p) => (
-                <ProductCard key={p.id} product={p} />
+              {results.map((p, i) => (
+                <ProductCard key={p.id} product={p} index={i} />
               ))}
             </div>
           ) : (

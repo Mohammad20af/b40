@@ -1,0 +1,9 @@
+# B40 concept image
+
+Created with the built-in image generation tool. Saved as `docs/b40-concept.png`. This is a visual concept, not a screenshot of the implemented application; the actual responsive website uses the original logo and local mock photography.
+
+Reference: the user-supplied original artwork, stored at `public/images/b40-logo.png`. The second supplied PNG could not be decoded by the tool.
+
+Final generation prompt:
+
+> Create one premium Arabic RTL B40 fashion ecommerce homepage design concept IMAGE, straight-on crisp website screenshot, no device frame, portrait layout 1440x1900. Reference is original B40 SPORTS crowned circular logo, preserve the branding precisely. Matte near-black background, restrained orange accents, editorial streetwear, premium large Arabic typography. Desktop nav original logo on right, links الرئيسية المنتجات الملابس الأحذية الفروع تواصل معنا, cart on left. Cinematic hero with large floating original logo medallion on left, orange light arc, Arabic bold right-aligned headline 'ستايلك يبدأ من هنا', subtitle 'قطع تشبهك. وتفاصيل تفرق.', orange CTA 'تسوق الآن'. Below thin orange statement strip then new arrivals section 'وصل حديثاً', four beautiful actual photographic product cards: oversized tee, orange sneakers, black hoodie, cargo trousers, Arabic names and prices 129 ₪, 349 ₪, 219 ₪, 189 ₪. Bottom two asymmetrical fashion editorial photographic collection banners with adult streetwear model and sneaker detail, headings 'تشكيلة الملابس' and 'تشكيلة الأحذية'. Polished realistic high-end fashion website, generous margins, fine gray rules, squared buttons, minimal labels, no generic rounded cards. All Arabic properly joined and legible. Keep exact crown and B40 SPORTS brand shape, avoid adding phone UI or profile buttons. Footer credit 'This site was created by Nexaura'. This is a concept image only.

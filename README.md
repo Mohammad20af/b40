@@ -1,6 +1,6 @@
 # B40 frontend
 
-Premium Arabic RTL fashion storefront built with React, Vite, React Router, Framer Motion, and CSS. All catalog, delivery, checkout, and administration data is local and illustrative. No backend, authentication, database, or real order submission is included.
+Premium Arabic RTL fashion storefront built with React, Vite, React Router, Framer Motion, and CSS. All catalog, delivery, checkout, and administration data is local and illustrative. The admin has a frontend-only demo login; no backend, production authentication, database, or real order submission is included.
 
 ## Run locally
 
@@ -32,9 +32,25 @@ The production bundle is written to `dist/`, which is excluded from Git. Deploy 
 | `/checkout` | Validated delivery form, mock delivery prices, branch choice, cash on delivery, simulated confirmation, Arabic WhatsApp preview |
 | `/branches` | Abu Dis, Al-Eizariya and Jericho with supplied Instagram and WhatsApp links |
 | `/contact` | Branch selection and direct social links |
-| `/admin` | Visual products, orders, categories and delivery preview; add/edit/delete dialogs do not mutate the catalog |
+| `/admin/login` | Arabic demo login with email, password, visibility toggle, and validation |
+| `/admin` | Existing visual products, orders, categories and delivery preview, behind the demo login; logout added, preview actions unchanged |
 
 Unknown routes/products and empty carts have useful recovery screens. The layout adapts to small phones, tablets and desktops, with keyboard focus indicators and reduced-motion support. Fonts and photographs are served locally. Product cards open the size/color selection screen before an item can be added.
+
+## Demo admin login
+
+With `npm run dev` on its default port:
+
+- Login URL: `http://127.0.0.1:5173/admin/login`
+- Demo email: `demo@b40.example`
+- Demo password: `B40-Demo-2026!`
+- Dashboard: `http://127.0.0.1:5173/admin`
+
+These are intentionally public, fake presentation credentials. `src/services/demoAuth.js` compares them locally and saves only the `b40-demo-admin-auth` flag in localStorage. `src/components/ProtectedRoute.jsx` redirects visitors without that flag to `/admin/login`. Login redirects to the existing `/admin` page; refresh preserves the session. Logout removes only that flag, preserves the shopping cart, and redirects to the login page. Open tabs also respond to logout. Blocked localStorage displays an error instead of pretending a session was saved.
+
+**DEMO ONLY:** this is not secure authentication. Credentials and the browser flag are visible and can be bypassed. The explicit developer comments in `demoAuth.js` and `ProtectedRoute.jsx` require replacing this flow with backend authentication and server-side authorization before production. No JWT, bcrypt, database, backend, or additional dependency was added.
+
+Login styles are scoped in `src/styles/adminAuth.css`; the public storefront styles and the existing dashboard functionality are unchanged.
 
 ## Project structure and customization
 
@@ -46,7 +62,7 @@ src/
   data/branches.js       Branch accounts, WhatsApp numbers, mock delivery zones
   hooks/useCart.jsx      Cart context, persistence, notifications
   layouts/StoreLayout.jsx Navigation, mobile menu, footer
-  pages/                 Eight page components
+  pages/                 Storefront, existing admin, and demo login page
   services/store.js      Catalog, delivery, simulated-order adapters
   styles/global.css      Palette variables, typography, desktop/component styles
   styles/responsive.css  Phone/tablet layouts and reduced-motion overrides
@@ -67,7 +83,7 @@ Colors are CSS variables at the top of `src/styles/global.css`, including `--acc
 - Replace delivery zone/quote adapters with API pricing and resolve asynchronous quotes in checkout.
 - Replace `orderService.preview` with a real validated order endpoint. Server-side prices, stock and totals must become authoritative when the backend is introduced.
 - Replace the current catalog-backed cart resolution with API products and availability checks.
-- Add authentication and authorization before converting the admin preview into real management functionality.
+- Replace `demoAuth.js`, `useDemoAuth.js`, and the presentation-only route guard with backend authentication and server-side authorization before converting the admin preview into real management functionality.
 
 Checkout currently stores only the cart in localStorage. Customer information stays in React state and is not submitted. Simulated confirmation clears the cart and shows a message preview. Opening WhatsApp requires the customer's click, and the customer then sends the message manually. Refreshing the confirmation page does not retain the preview. Abu Dis/Al-Eizariya use `972522760661`; Jericho uses `972533781655`.
 
@@ -83,6 +99,8 @@ npm run build
 Browser tests use locally installed Google Chrome in headless mode and automatically start Vite on port 4173. Screenshots/traces are written under ignored `test-results/`. If Chrome is unavailable, install it or change `channel` in `playwright.config.js` to your installed browser.
 
 Checks cover route rendering, RTL, image loading, horizontal overflow, catalog filters, sizes/colors, cart refresh/quantities/removal, corrupt storage, unavailable products, checkout validation, totals, branch-specific WhatsApp messages, admin preview, keyboard navigation and mobile menus. QA fixed an unavailable icon export, the favicon request, query-filter scroll jumps, and browser-dependent Arabic number formatting.
+
+`tests/e2e/admin-auth.spec.js` additionally checks direct-route redirects, valid/invalid demo login, password visibility, refresh persistence, logout, cart preservation, invalid stored flags, blocked storage, cross-tab logout, and the responsive login screen. Existing dashboard regression checks log in using `tests/e2e/helpers/admin.js` before exercising the original admin interface.
 
 ## Git and GitHub
 

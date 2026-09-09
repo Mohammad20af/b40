@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { signInDemo } from "./helpers/admin";
 
 test("navigation, gallery, narrow screens and reduced-motion hero", async ({
   page,
@@ -20,6 +21,7 @@ test("navigation, gallery, narrow screens and reduced-motion hero", async ({
     "src",
     "/images/tee.jpg",
   );
+  await signInDemo(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const width of info.project.name === "mobile"
     ? [320, 375]
@@ -59,6 +61,7 @@ test("all pages render with RTL, loaded images, no overflow or runtime errors", 
   page.on("console", (m) => {
     if (m.type() === "error") errors.push(m.text());
   });
+  await signInDemo(page);
   for (const route of [
     "/",
     "/shop",
@@ -203,7 +206,7 @@ test("branch contact selection, admin preview and mobile keyboard dismissal", as
     "href",
     "https://wa.me/972533781655",
   );
-  await page.goto("/admin");
+  await signInDemo(page);
   await page.getByRole("button", { name: "إضافة منتج", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");

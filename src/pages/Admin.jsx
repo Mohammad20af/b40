@@ -1,10 +1,25 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { catalogService, deliveryService } from "../services/store";
 import { categories } from "../data/products";
 import { money } from "../utils/shop";
+import { logoutDemo } from "../services/demoAuth";
+import "../styles/adminAuth.css";
 
 export default function Admin() {
+  const navigate = useNavigate();
+  const [logoutError, setLogoutError] = useState("");
+  function logout() {
+    try {
+      logoutDemo();
+      navigate("/admin/login", { replace: true });
+    } catch {
+      setLogoutError(
+        "تعذّر تسجيل الخروج. اسمح بالتخزين المحلي في المتصفح ثم حاول مجدداً.",
+      );
+    }
+  }
   const [tab, setTab] = useState("المنتجات"),
     [preview, setPreview] = useState(null);
   const products = catalogService.list();
@@ -14,6 +29,18 @@ export default function Admin() {
         <span className="eyebrow">B40 / مساحة الإدارة</span>
         <h1>لوحة التحكم</h1>
         <p>معاينة تصميم فقط — جميع البيانات تجريبية والتغييرات غير محفوظة.</p>
+        <button
+          className="button-outline admin-logout"
+          type="button"
+          onClick={logout}
+        >
+          <LogOut size={17} /> تسجيل الخروج
+        </button>
+        {logoutError && (
+          <p className="error admin-logout-error" role="alert">
+            {logoutError}
+          </p>
+        )}
       </div>
       <div className="admin-tabs" role="tablist" aria-label="أقسام الإدارة">
         {["المنتجات", "الطلبات", "التصنيفات", "مناطق التوصيل"].map((t) => (

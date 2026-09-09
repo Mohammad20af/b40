@@ -1,0 +1,88 @@
+.admin-login {
+  min-height: 660px;
+  display: grid;
+  place-items: center;
+  padding-block: 60px;
+}
+.admin-login-card {
+  width: min(100%, 470px);
+  padding: 38px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+}
+.admin-login-logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  margin-bottom: 24px;
+}
+.admin-login-card .eyebrow {
+  margin-bottom: 10px;
+}
+.admin-login-card h1 {
+  font-size: 27px;
+  margin-bottom: 12px;
+}
+.admin-login-intro {
+  font-size: 12px;
+}
+.admin-demo-note {
+  color: var(--muted);
+  font-size: 11px;
+  border-right: 2px solid var(--accent);
+  padding-right: 12px;
+  margin: 22px 0 26px;
+}
+.admin-login-card form > label {
+  margin-bottom: 9px;
+}
+.admin-login-card form > input {
+  margin-bottom: 20px;
+}
+.admin-login-card input {
+  background: var(--bg);
+  font-size: 14px;
+}
+.admin-password-field {
+  position: relative;
+}
+.admin-password-field input {
+  padding-right: 48px;
+}
+.admin-password-toggle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: var(--muted);
+}
+.admin-password-toggle:hover {
+  color: var(--accent);
+}
+.admin-login-error {
+  margin-block: 10px 17px;
+}
+.admin-login-back {
+  margin-top: 26px;
+}
+.admin-logout {
+  margin-top: 18px;
+}
+.admin-logout-error {
+  margin-top: 10px;
+}
+@media (max-width: 600px) {
+  .admin-login {
+    min-height: 0;
+    padding-block: 32px;
+  }
+  .admin-login-card {
+    padding: 26px 22px;
+  }
+  .admin-login-card h1 {
+    font-size: 24px;
+  }
+  .admin-login-card input {
+    font-size: 16px;
+  }
+}

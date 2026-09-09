@@ -9,6 +9,7 @@ import StoreLayout from "./layouts/StoreLayout";
 import { CartProvider } from "./hooks/useCart";
 import Home from "./pages/Home";
 import { Empty } from "./components/UI";
+import ProtectedRoute from "./components/ProtectedRoute";
 const Shop = lazy(() => import("./pages/Shop"));
 const Product = lazy(() => import("./pages/Product"));
 const Cart = lazy(() => import("./pages/Cart"));
@@ -16,6 +17,7 @@ const Checkout = lazy(() => import("./pages/Checkout"));
 const Branches = lazy(() => import("./pages/Branches"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Admin = lazy(() => import("./pages/Admin"));
+const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 class ErrorBoundary extends React.Component {
   state = { error: false };
   static getDerivedStateFromError() {
@@ -57,7 +59,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                   <Route path="checkout" element={<Checkout />} />
                   <Route path="branches" element={<Branches />} />
                   <Route path="contact" element={<Contact />} />
-                  <Route path="admin" element={<Admin />} />
+                  <Route path="admin/login" element={<AdminLogin />} />
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="admin" element={<Admin />} />
+                  </Route>
                   <Route
                     path="*"
                     element={

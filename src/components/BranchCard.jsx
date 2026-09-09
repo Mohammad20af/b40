@@ -1,2 +1,32 @@
-import { Instagram, ArrowUpLeft, MessageCircle } from 'lucide-react';
-export default function BranchCard({branch,index=0}){return <article className="branch-card"><div className="branch-number">0{index+1}<ArrowUpLeft size={25}/></div><h2>{branch.name}</h2><p>نفس الروح. نفس التفاصيل. أقرب إلك.</p><div className="branch-links"><a href={`https://www.instagram.com/${branch.instagram}/`} target="_blank" rel="noreferrer"><Instagram size={19}/><span dir="ltr">@{branch.instagram}</span><ArrowUpLeft size={17}/></a><a href={`https://wa.me/${branch.whatsapp}`} target="_blank" rel="noreferrer"><MessageCircle size={19}/> تواصل عبر واتساب<ArrowUpLeft size={17}/></a></div></article>;}
+import { Camera as Instagram, ArrowUpLeft, MessageCircle } from "lucide-react";
+export default function BranchCard({ branch, index = 0 }) {
+  return (
+    <article className="branch-card">
+      <div className="branch-number">
+        0{index + 1}
+        <ArrowUpLeft size={25} />
+      </div>
+      <h2>{branch.name}</h2>
+      <p>نفس الروح. نفس التفاصيل. أقرب إلك.</p>
+      <div className="branch-links">
+        <a
+          href={`https://www.instagram.com/${branch.instagram}/`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Instagram size={19} />
+          <span dir="ltr">@{branch.instagram}</span>
+          <ArrowUpLeft size={17} />
+        </a>
+        <a
+          href={`https://wa.me/${branch.whatsapp}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <MessageCircle size={19} /> تواصل عبر واتساب
+          <ArrowUpLeft size={17} />
+        </a>
+      </div>
+    </article>
+  );
+}

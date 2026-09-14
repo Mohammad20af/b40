@@ -8,7 +8,7 @@ export function Heading({ eyebrow, title, link, to = "/shop" }) {
   return (
     <div className="section-heading">
       <TextReveal>
-        <span className="eyebrow">{eyebrow}</span>
+        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
         <h2>{title}</h2>
       </TextReveal>
       {link && (

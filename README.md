@@ -1,6 +1,6 @@
-# B40 frontend
+# B40 Jericho frontend
 
-Premium Arabic RTL fashion storefront built with React, Vite, React Router, Framer Motion, and CSS. All catalog, delivery, checkout, and administration data is local and illustrative. The admin has a frontend-only demo login; no backend, production authentication, database, or real order submission is included.
+Jericho-only Arabic RTL fashion storefront built with React, Vite, React Router, Framer Motion, and CSS. All catalog, delivery, checkout, and administration data is local and illustrative. The admin has a frontend-only demo login; no backend, production authentication, database, or real order submission is included.
 
 ## Run locally
 
@@ -25,17 +25,17 @@ The production bundle is written to `dist/`, which is excluded from Git. Deploy 
 
 | Route | Features |
 | --- | --- |
-| `/` | Cinematic original logo artwork, pointer tilt, scroll parallax, motion reveals, new arrivals, featured products, clothing/shoe collections, promotion, branches, Instagram, footer |
+| `/` | Fashion photography hero, five visual categories, latest products, compact brand section, Instagram image grid, WhatsApp CTA, minimal footer |
 | `/shop` | Twelve products, Arabic search, category/price/size/availability filters, clear filters, price sorting, URL-based filter state |
 | `/product/:id` | Image gallery, inspirational alternate view, price, sizes, colors, quantity, availability, add to bag, related products |
 | `/cart` | Variant-aware cart, quantity updates, removal, subtotal, localStorage persistence |
-| `/checkout` | Validated delivery form, mock delivery prices, branch choice, cash on delivery, simulated confirmation, Arabic WhatsApp preview |
-| `/branches` | Abu Dis, Al-Eizariya and Jericho with supplied Instagram and WhatsApp links |
-| `/contact` | Branch selection and direct social links |
+| `/checkout` | Validated delivery form, mock delivery prices, fixed Jericho destination, cash on delivery, simulated confirmation, Arabic WhatsApp preview |
+| `/branches` | Legacy URL redirects to the Jericho contact page |
+| `/contact` | Jericho Instagram, WhatsApp and phone links |
 | `/admin/login` | Arabic demo login with email, password, visibility toggle, and validation |
 | `/admin` | Existing visual products, orders, categories and delivery preview, behind the demo login; logout added, preview actions unchanged |
 
-Unknown routes/products and empty carts have useful recovery screens. The layout adapts to small phones, tablets and desktops, with keyboard focus indicators and reduced-motion support. Fonts and photographs are served locally. Product cards open the size/color selection screen before an item can be added.
+Unknown routes/products and empty carts have useful recovery screens. The layout adapts to small phones, tablets and desktops, with keyboard focus indicators and reduced-motion support. Fonts and photographs are served locally. Product cards include a quick-add dialog with explicit size and color selection, keyboard dismissal, and focus restoration. Product links still open the full detail page.
 
 ## Demo admin login
 
@@ -50,7 +50,7 @@ These are intentionally public, fake presentation credentials. `src/services/dem
 
 **DEMO ONLY:** this is not secure authentication. Credentials and the browser flag are visible and can be bypassed. The explicit developer comments in `demoAuth.js` and `ProtectedRoute.jsx` require replacing this flow with backend authentication and server-side authorization before production. No JWT, bcrypt, database, backend, or additional dependency was added.
 
-Login styles are scoped in `src/styles/adminAuth.css`; the public storefront styles and the existing dashboard functionality are unchanged.
+Login styles are scoped in `src/styles/adminAuth.css`; the dashboard keeps its existing demo functionality and shares the Jericho visual theme.
 
 ## Project structure and customization
 
@@ -59,7 +59,7 @@ public/images/            Original logo and local mock fashion photos
 src/
   components/            Shared cards, headings, quantity controls, motion reveals
   data/products.js       Twelve mock products, variants, prices, image paths
-  data/branches.js       Branch accounts, WhatsApp numbers, mock delivery zones
+  data/branches.js       Jericho contact details and mock delivery zones
   hooks/useCart.jsx      Cart context, persistence, notifications
   layouts/StoreLayout.jsx Navigation, mobile menu, footer
   pages/                 Storefront, existing admin, and demo login page
@@ -85,7 +85,7 @@ Colors are CSS variables at the top of `src/styles/global.css`, including `--acc
 - Replace the current catalog-backed cart resolution with API products and availability checks.
 - Replace `demoAuth.js`, `useDemoAuth.js`, and the presentation-only route guard with backend authentication and server-side authorization before converting the admin preview into real management functionality.
 
-Checkout currently stores only the cart in localStorage. Customer information stays in React state and is not submitted. Simulated confirmation clears the cart and shows a message preview. Opening WhatsApp requires the customer's click, and the customer then sends the message manually. Refreshing the confirmation page does not retain the preview. Abu Dis/Al-Eizariya use `972522760661`; Jericho uses `972533781655`.
+Checkout currently stores only the cart in localStorage. Customer information stays in React state and is not submitted. Simulated confirmation clears the cart and shows a message preview. Opening WhatsApp requires the customer's click, and the customer then sends the message manually. Refreshing the confirmation page does not retain the preview. Every checkout uses Jericho: `972533781655`. Instagram is `@b40.jericho`.
 
 ## Validation
 
@@ -98,13 +98,13 @@ npm run build
 
 Browser tests use locally installed Google Chrome in headless mode and automatically start Vite on port 4173. Screenshots/traces are written under ignored `test-results/`. If Chrome is unavailable, install it or change `channel` in `playwright.config.js` to your installed browser.
 
-Checks cover route rendering, RTL, image loading, horizontal overflow, catalog filters, sizes/colors, cart refresh/quantities/removal, corrupt storage, unavailable products, checkout validation, totals, branch-specific WhatsApp messages, admin preview, keyboard navigation and mobile menus. QA fixed an unavailable icon export, the favicon request, query-filter scroll jumps, and browser-dependent Arabic number formatting.
+Checks cover route rendering, RTL, image loading, horizontal overflow, catalog filters, sizes/colors, cart refresh/quantities/removal, corrupt storage, unavailable products, checkout validation, totals, Jericho WhatsApp messages and quick-add variants, admin preview, keyboard navigation and mobile menus. QA fixed an unavailable icon export, the favicon request, query-filter scroll jumps, and browser-dependent Arabic number formatting.
 
 `tests/e2e/admin-auth.spec.js` additionally checks direct-route redirects, valid/invalid demo login, password visibility, refresh persistence, logout, cart preservation, invalid stored flags, blocked storage, cross-tab logout, and the responsive login screen. Existing dashboard regression checks log in using `tests/e2e/helpers/admin.js` before exercising the original admin interface.
 
 ## Git and GitHub
 
-Git was initialized before feature work, with separate commits for setup, storefront/shared foundations, catalog, cart/checkout, branch/contact/admin pages, and QA. The `.gitignore` excludes dependencies, environment files, build output, logs, test artifacts, private key files, and local tooling directories. The empty pre-existing `main` file is left untouched and ignored.
+Git was initialized before feature work, with separate commits for setup, storefront/shared foundations, catalog, cart/checkout, contact/admin pages, and QA. The `.gitignore` excludes dependencies, environment files, build output, logs, test artifacts, private key files, and local tooling directories. The empty pre-existing `main` file is left untouched and ignored.
 
 Create a new **empty** GitHub repository called `b40` (do not initialize a README, license or gitignore), then run these PowerShell commands. The first line prompts for your actual GitHub username or organization:
 

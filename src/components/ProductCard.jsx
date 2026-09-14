@@ -1,10 +1,18 @@
 import { Link } from "react-router-dom";
-import { Plus, ArrowUpLeft } from "lucide-react";
-import { Price } from "./UI";
+import { useRef, useState, useId } from "react";
+import { createPortal } from "react-dom";
+import { Plus, X, ShoppingBag } from "lucide-react";
+import { money } from "../utils/shop";
+import { useCart } from "../hooks/useCart";
 import { Reveal, ImageReveal } from "./ScrollMotion";
 
 export default function ProductCard({ product, index = 0 }) {
   const delay = (index % 4) * 0.055;
+  const dialog = useRef(null);
+  const titleId = useId();
+  const [size, setSize] = useState("");
+  const [color, setColor] = useState(product.colors[0].name);
+  const { add } = useCart();
   return (
     <Reveal as="article" className="product-card" delay={delay}>
       <Link
@@ -21,29 +29,110 @@ export default function ProductCard({ product, index = 0 }) {
           width="600"
           height="750"
         />
-        {product.oldPrice && <span className="tag">سعر خاص</span>}
         {!product.available && (
           <span className="tag sold-out">نفد المخزون</span>
         )}
-        <span className="product-view">
-          اكتشف القطعة
-          <ArrowUpLeft size={20} />
-        </span>
       </Link>
       <div className="product-meta">
-        <span>{product.category}</span>
-        <Link
-          to={`/product/${product.id}`}
+        <div>
+          <h3>
+            <Link to={`/product/${product.id}`}>{product.name}</Link>
+          </h3>
+          <span className="price">{money(product.price)}</span>
+        </div>
+        <button
           className="quick-add"
           aria-label={`اختيار مقاس وإضافة ${product.name}`}
+          aria-haspopup="dialog"
+          disabled={!product.available}
+          onClick={() => {
+            setSize("");
+            setColor(product.colors[0].name);
+            dialog.current.showModal();
+          }}
         >
           <Plus size={20} />
-        </Link>
+        </button>
       </div>
-      <h3>
-        <Link to={`/product/${product.id}`}>{product.name}</Link>
-      </h3>
-      <Price product={product} />
+      {createPortal(
+        <dialog
+          className="quick-dialog"
+          ref={dialog}
+          aria-labelledby={titleId}
+          onClick={(e) => {
+            if (e.target === dialog.current) {
+              const r = dialog.current.getBoundingClientRect();
+              if (
+                e.clientX < r.left ||
+                e.clientX > r.right ||
+                e.clientY < r.top ||
+                e.clientY > r.bottom
+              )
+                dialog.current.close();
+            }
+          }}
+        >
+          <button
+            className="icon-button quick-close"
+            aria-label="إغلاق"
+            onClick={() => dialog.current.close()}
+          >
+            <X size={21} />
+          </button>
+          <div className="quick-preview">
+            <img
+              src={product.images[0]}
+              alt={product.name}
+              width="120"
+              height="150"
+            />
+            <div>
+              <h2 id={titleId}>{product.name}</h2>
+              <span className="price">{money(product.price)}</span>
+            </div>
+          </div>
+          <fieldset>
+            <legend>اختر المقاس</legend>
+            <div className="size-options">
+              {product.sizes.map((s) => (
+                <button
+                  key={s}
+                  aria-pressed={size === s}
+                  onClick={() => setSize(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>اللون: {color}</legend>
+            <div className="color-options">
+              {product.colors.map((c) => (
+                <button
+                  key={c.name}
+                  aria-label={c.name}
+                  aria-pressed={color === c.name}
+                  style={{ "--swatch": c.hex }}
+                  onClick={() => setColor(c.name)}
+                />
+              ))}
+            </div>
+          </fieldset>
+          <button
+            className="button full"
+            disabled={!size || !product.available}
+            onClick={() => {
+              add(product, size, color);
+              dialog.current.close();
+            }}
+          >
+            <ShoppingBag size={18} />
+            أضف إلى الحقيبة
+          </button>
+        </dialog>,
+        document.body,
+      )}
     </Reveal>
   );
 }

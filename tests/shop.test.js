@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { products } from "../src/data/products.js";
-import { branches, deliveryZones } from "../src/data/branches.js";
+import { storeInfo, deliveryZones } from "../src/data/branches.js";
 import {
   sanitizeCart,
   filterProducts,
@@ -66,7 +66,7 @@ test("Arabic WhatsApp preview preserves branch, delivery, variants and totals", 
     address: "عنوان تجريبي",
     notes: "اتصال قبل التوصيل",
   };
-  for (const branch of branches) {
+  for (const branch of [storeInfo]) {
     const message = orderMessage({
       customer,
       branch,

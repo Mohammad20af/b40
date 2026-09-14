@@ -70,6 +70,8 @@ test("all pages render with RTL, loaded images, no overflow or runtime errors", 
     "/checkout",
     "/branches",
     "/contact",
+    "/#about",
+    "/admin/login",
     "/admin",
     "/missing",
     "/product/missing",
@@ -96,11 +98,10 @@ test("all pages render with RTL, loaded images, no overflow or runtime errors", 
       ),
       route,
     ).toBe(true);
-    if (route === "/")
-      await page.screenshot({
-        path: `test-results/home-${info.project.name}.png`,
-        fullPage: true,
-      });
+    await page.screenshot({
+      path: `test-results/${route === "/" ? "home" : route.replace(/[^a-z0-9]+/gi, "-")}-${info.project.name}.png`,
+      fullPage: true,
+    });
   }
   expect(errors).toEqual([]);
 });
@@ -171,9 +172,9 @@ test("checkout validates fields and prepares correct Jericho WhatsApp message", 
   await page
     .getByRole("textbox", { name: "العنوان الكامل" })
     .fill("عنوان تجريبي للعرض");
-  await page
-    .getByRole("combobox", { name: "اختيار الفرع", exact: true })
-    .selectOption("jericho");
+  await expect(
+    page.getByRole("combobox", { name: "اختيار الفرع", exact: true }),
+  ).toHaveCount(0);
   await expect(page.locator(".total")).toContainText("٢٧٣");
   await page.getByRole("button", { name: "تأكيد الطلب التجريبي" }).click();
   const link = page.getByRole("link", { name: "فتح الرسالة في واتساب" });
@@ -195,13 +196,11 @@ test("checkout validates fields and prepares correct Jericho WhatsApp message", 
     page.getByRole("heading", { name: "حقيبتك تنتظر أول قطعة" }),
   ).toBeVisible();
 });
-test("branch contact selection, admin preview and mobile keyboard dismissal", async ({
+test("Jericho contact links, admin preview and mobile keyboard dismissal", async ({
   page,
 }, info) => {
   await page.goto("/contact");
-  await page
-    .getByRole("combobox", { name: "اختر الفرع", exact: true })
-    .selectOption("jericho");
+  await expect(page.getByRole("combobox")).toHaveCount(0);
   await expect(page.locator('main a[href^="https://wa.me/"]')).toHaveAttribute(
     "href",
     "https://wa.me/972533781655",

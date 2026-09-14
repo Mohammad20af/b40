@@ -32,18 +32,17 @@ export default function Shop() {
   return (
     <div className="container page">
       <TextReveal className="page-heading">
-        <span className="eyebrow">اكتشف ما يشبهك</span>
-        <h1>
-          كل قطعة. <span className="accent">حكاية.</span>
-        </h1>
-        <p>ملابس وأحذية تختارها على طريقتك.</p>
+        <span className="eyebrow" dir="ltr">
+          B40 JERICHO
+        </span>
+        <h1>المنتجات</h1>
       </TextReveal>
       <div className="shop-toolbar">
         <label className="search">
           <Search size={19} />
           <input
             aria-label="ابحث عن منتج"
-            placeholder="ابحث عن قطعتك القادمة..."
+            placeholder="ابحث عن منتج"
             value={filters.search}
             onChange={(e) => update("q", e.target.value)}
           />
@@ -143,7 +142,7 @@ export default function Shop() {
         </aside>
         <div>
           <p className="results-count" aria-live="polite">
-            {results.length} قطعة بانتظارك
+            {results.length} منتج
           </p>
           {results.length ? (
             <div className="product-grid shop-products">

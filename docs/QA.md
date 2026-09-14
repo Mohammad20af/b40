@@ -1,16 +1,27 @@
-# Frontend validation — 2026-09-09
+# B40 Jericho review
 
-- `npm run build`: passed; production assets generated successfully.
-- `npm run format:check`: passed.
-- `npm test`: 4 logic tests passed.
-- `npm run test:e2e`: 14 Chrome browser tests passed.
-- Main browser profiles: 1440 × 1000 desktop and 390 × 844 touch/mobile.
-- Additional layout checks: 320, 375, 768, and 1024 px widths.
-- All eight pages, unknown routes, and missing products render without JavaScript console errors or broken images.
-- Checked Arabic RTL, horizontal overflow, reduced motion, gallery changes, navigation, product filters, cart variants/quantity/persistence/removal, corrupt localStorage recovery, unavailable stock, checkout field validation, delivery totals, WhatsApp message/branch selection, contact links, and admin dialogs/menu keyboard dismissal.
-- Inspected rendered desktop and mobile homepage screenshots. The generated concept is separately stored in `docs/b40-concept.png` and is not an application screenshot.
-- Source scan found no common API-token/private-key signatures. No environment files, dependencies, build output, or private-key files are tracked. Supplied branch contact numbers are intentional public content.
+Updated September 14, 2026.
 
-Issues corrected: unavailable Instagram icon export (replaced with a camera icon), missing favicon, unwanted scroll resets during filtering, explicit contact selector labeling, and Arabic numerals differing between browser and Node runtimes. Test locators were refined to distinguish quantity outputs from toast announcements and wait for router filter updates.
+## Storefront
 
-Limitations: mock stock, mock delivery pricing, illustrative product photos, simulated orders, and visual-only admin. External social links and WhatsApp URLs were validated without sending messages. No backend or payment processing is present. Browser coverage is Chrome, not a claim of testing every browser or physical device.
+- Existing React/Vite project retained, including catalog, filters, variants, gallery, persistent cart, checkout preview, and demo administration.
+- Jericho is the sole store identity. Instagram: @b40.jericho. Phone/WhatsApp: +972533781655.
+- Minimal four-link navigation and accessible cart. About navigation goes to the compact homepage brand section.
+- Homepage: photographic hero, five existing catalog categories, four featured products, compact brand section, Instagram-style image grid, WhatsApp CTA, minimal footer.
+- Product cards have a native modal quick-add flow. Explicit size selection is required; color and size are preserved in the cart. Escape and close restore focus.
+- Contact and checkout no longer offer store selection. The old /branches URL redirects to /contact.
+- Existing logo, locally hosted font and photography retained. No backend or new dependencies added.
+
+## Verification
+
+- Production build and formatting checks pass.
+- Four unit tests cover cart sanitation, variant merging, filters, and Arabic order totals.
+- All 34 desktop and mobile browser tests pass. Coverage includes all routes, missing products/pages, images, RTL, overflow, contact destinations, category navigation, quick add, cart persistence, checkout validation, Jericho WhatsApp message, demo login/admin, and reduced motion.
+- Viewports include 320, 375, 390, 768, 1024, and 1440px. A populated cart, checkout, and quick-add dialog are explicitly checked at 320px.
+- Runtime and browser console error assertions pass on the route audit and narrow-screen shopping flow.
+- Screenshots are generated in ignored test-results/ for visual review.
+- Source and documentation scan found no obsolete store names, handles, or phone numbers.
+
+## Existing frontend limitations
+
+Catalog photography and merchandise data remain illustrative. Delivery prices and order confirmation remain a local demo. WhatsApp opens a prefilled message for the customer to review and send. Instagram tiles use local photography and link to the Jericho profile; they are not a live account feed. Demo admin authentication and actions remain frontend-only.

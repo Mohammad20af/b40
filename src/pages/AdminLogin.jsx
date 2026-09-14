@@ -30,11 +30,8 @@ export default function AdminLogin() {
           width="72"
           height="72"
         />
-        <span className="eyebrow">B40 / مساحة الإدارة</span>
+        <span className="eyebrow">B40 JERICHO / مساحة الإدارة</span>
         <h1 id="admin-login-title">تسجيل دخول الإدارة</h1>
-        <p className="admin-login-intro">
-          أهلاً فيك. سجّل دخولك لمعاينة لوحة التحكم.
-        </p>
         <p className="admin-demo-note" id="admin-demo-note">
           دخول تجريبي لعرض المشروع فقط، وليس نظام تسجيل دخول آمن للإنتاج.
         </p>

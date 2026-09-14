@@ -21,13 +21,13 @@ test("cards reveal on entry, later rows wait, and completed reveals do not repla
   await expect(last).toHaveCSS("opacity", "1");
 });
 
-test("collection parallax is bounded and text/image reveal respects reduced motion", async ({
+test("brand image parallax is bounded and text/image reveal respects reduced motion", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
-  const image = page.locator(".collection-clothes > img");
-  const title = page.locator(".collection-clothes h2");
+  const image = page.locator(".brand-story-photo > img");
+  const title = page.locator(".brand-story h2");
   await expect(image).toHaveCSS("opacity", "0");
   await image.scrollIntoViewIfNeeded();
   await expect(image).toHaveCSS("opacity", "1");

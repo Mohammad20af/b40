@@ -1,23 +1,12 @@
-export const branches = [
-  {
-    id: "abu-dis",
-    name: "أبو ديس",
-    instagram: "b.40.s",
-    whatsapp: "972522760661",
-  },
-  {
-    id: "eizariya",
-    name: "العيزرية",
-    instagram: "b40originally",
-    whatsapp: "972522760661",
-  },
-  {
-    id: "jericho",
-    name: "أريحا",
-    instagram: "b40.jericho",
-    whatsapp: "972533781655",
-  },
-];
+export const storeInfo = {
+  id: "jericho",
+  name: "أريحا",
+  instagram: "b40.jericho",
+  whatsapp: "972533781655",
+  phone: "+972533781655",
+  instagramUrl: "https://www.instagram.com/b40.jericho/",
+  whatsappUrl: "https://wa.me/972533781655",
+};
 export const deliveryZones = [
   { id: "jerusalem", name: "القدس", price: 20 },
   { id: "jericho", name: "أريحا", price: 15 },

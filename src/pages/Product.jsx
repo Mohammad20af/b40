@@ -73,12 +73,10 @@ function ProductContent({ product }) {
               </button>
             ))}
           </div>
-          <p className="small muted">
-            صور توضيحية للتشكيلة؛ الصورة الثانية للإلهام.
-          </p>
+          <p className="small muted">صور توضيحية؛ الصورة الثانية للإلهام.</p>
         </div>
         <div className="product-info">
-          <span className="eyebrow">B40 / {product.category}</span>
+          <span className="eyebrow">B40 JERICHO / {product.category}</span>
           <h1>{product.name}</h1>
           <Price product={product} />
           <p className="product-description">{product.description}</p>
@@ -86,9 +84,7 @@ function ProductContent({ product }) {
             {product.available ? "● متوفر الآن" : "غير متوفر حالياً"}
           </p>
           <fieldset>
-            <legend>
-              المقاس <span className="muted">— اختر مقاسك</span>
-            </legend>
+            <legend>المقاس</legend>
             <div className="size-options">
               {product.sizes.map((s) => (
                 <button
@@ -142,7 +138,7 @@ function ProductContent({ product }) {
         </div>
       </div>
       <section className="section">
-        <Heading eyebrow="أكمل إطلالتك" title="قد تعجبك أيضاً" />
+        <Heading title="قد تعجبك أيضاً" />
         <div className="product-grid">
           {catalogService
             .list()

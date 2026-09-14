@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Check, ArrowUpLeft, CreditCard } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { Empty } from "../components/UI";
-import { branches } from "../data/branches";
+import { storeInfo as branch } from "../data/branches";
 import { deliveryService, orderService } from "../services/store";
 import { money, orderMessage } from "../utils/shop";
 
@@ -17,13 +17,11 @@ export default function Checkout() {
     address: "",
     notes: "",
   });
-  const [branchId, setBranchId] = useState(branches[0].id),
-    [zoneId, setZoneId] = useState(zones[0].id),
+  const [zoneId, setZoneId] = useState("jericho"),
     [order, setOrder] = useState(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const branch = branches.find((b) => b.id === branchId),
-    zone = zones.find((z) => z.id === zoneId),
+  const zone = zones.find((z) => z.id === zoneId),
     delivery = deliveryService.quote(zoneId);
   const field = (key, label, props = {}) => (
     <label className={props.wide ? "wide" : ""}>
@@ -79,8 +77,8 @@ export default function Checkout() {
           <Check size={34} />
         </div>
         <span className="eyebrow">{order.id}</span>
-        <h1>إطلالتك جاهزة للخطوة الجاية.</h1>
-        <p>تم تجهيز معاينة طلبك. هذه تجربة، ولم يتم إرسال طلب فعلي.</p>
+        <h1>طلبك جاهز للمراجعة</h1>
+        <p>معاينة تجريبية. لم يُرسل الطلب بعد.</p>
         <div className="summary">
           <h2>معاينة رسالة واتساب — {order.branch.name}</h2>
           <pre className="whatsapp-preview">{order.message}</pre>
@@ -112,7 +110,9 @@ export default function Checkout() {
   return (
     <div className="container page">
       <div className="page-heading">
-        <span className="eyebrow">الخطوة الأخيرة لإطلالتك</span>
+        <span className="eyebrow" dir="ltr">
+          B40 JERICHO
+        </span>
         <h1>إتمام الطلب</h1>
         <p>معاينة تجريبية — لن يتم إرسال طلب تلقائياً.</p>
       </div>
@@ -158,26 +158,12 @@ export default function Checkout() {
             </label>
           </div>
           <h2>
-            <span className="accent">02 /</span> الفرع وطريقة الدفع
+            <span className="accent">02 /</span> طريقة الدفع
           </h2>
-          <label>
-            اختيار الفرع
-            <select
-              value={branchId}
-              onChange={(e) => setBranchId(e.target.value)}
-            >
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </label>
           <div className="payment-option">
             <CreditCard size={22} />
             <div>
               <strong>الدفع عند الاستلام</strong>
-              <p>ادفع عند وصول طلبك.</p>
             </div>
             <Check size={18} />
           </div>
@@ -208,15 +194,11 @@ export default function Checkout() {
             <span>الإجمالي</span>
             <strong>{money(subtotal + delivery)}</strong>
           </div>
-          <p className="small muted">الفرع المختار: {branch.name}</p>
           <button className="button full" disabled={busy} type="submit">
             {busy ? "جارٍ التجهيز…" : "تأكيد الطلب التجريبي"}
           </button>
           <p className="error" role="alert">
             {error}
-          </p>
-          <p className="small muted">
-            ستتمكن من معاينة رسالة الطلب قبل فتح واتساب.
           </p>
         </aside>
       </form>

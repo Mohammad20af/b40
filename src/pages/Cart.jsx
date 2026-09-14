@@ -8,15 +8,11 @@ export default function Cart() {
   const { items, count, subtotal, update, remove } = useCart();
   if (!items.length)
     return (
-      <Empty
-        title="حقيبتك تنتظر أول قطعة"
-        detail="اختر القطع التي تشبهك، واجمع إطلالتك هنا."
-      />
+      <Empty title="حقيبتك تنتظر أول قطعة" detail="اكتشف التشكيلة الجديدة." />
     );
   return (
     <div className="container page">
       <div className="page-heading">
-        <span className="eyebrow">اختياراتك، في مكان واحد</span>
         <h1>
           حقيبة التسوق <span className="accent">({count})</span>
         </h1>

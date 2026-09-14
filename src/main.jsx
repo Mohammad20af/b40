@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { MotionConfig } from "framer-motion";
 import "@fontsource-variable/noto-sans-arabic";
 import "./styles/global.css";
@@ -14,7 +14,6 @@ const Shop = lazy(() => import("./pages/Shop"));
 const Product = lazy(() => import("./pages/Product"));
 const Cart = lazy(() => import("./pages/Cart"));
 const Checkout = lazy(() => import("./pages/Checkout"));
-const Branches = lazy(() => import("./pages/Branches"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Admin = lazy(() => import("./pages/Admin"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
@@ -57,7 +56,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                   <Route path="product/:id" element={<Product />} />
                   <Route path="cart" element={<Cart />} />
                   <Route path="checkout" element={<Checkout />} />
-                  <Route path="branches" element={<Branches />} />
+                  <Route
+                    path="branches"
+                    element={<Navigate to="/contact" replace />}
+                  />
                   <Route path="contact" element={<Contact />} />
                   <Route path="admin/login" element={<AdminLogin />} />
                   <Route element={<ProtectedRoute />}>

@@ -26,7 +26,7 @@ export default function Admin() {
   return (
     <div className="container page">
       <div className="page-heading">
-        <span className="eyebrow">B40 / مساحة الإدارة</span>
+        <span className="eyebrow">B40 JERICHO / مساحة الإدارة</span>
         <h1>لوحة التحكم</h1>
         <p>معاينة تصميم فقط — جميع البيانات تجريبية والتغييرات غير محفوظة.</p>
         <button

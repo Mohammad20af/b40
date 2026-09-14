@@ -1,38 +1,44 @@
-import { useState } from "react";
-import { branches } from "../data/branches";
-import BranchCard from "../components/BranchCard";
+import { ArrowUpLeft, MessageCircle, Phone, Camera } from "lucide-react";
+import { storeInfo } from "../data/branches";
 import { TextReveal } from "../components/ScrollMotion";
 export default function Contact() {
-  const [id, setId] = useState(branches[0].id);
-  const index = branches.findIndex((b) => b.id === id);
   return (
     <div className="container page contact-layout">
-      <TextReveal className="page-heading">
-        <span className="eyebrow">حديث بسيط. إطلالة مختلفة.</span>
-        <h1>
-          نحكي <span className="accent">ستايل؟</span>
-        </h1>
-        <p>
-          عندك سؤال عن مقاس، قطعة، أو طلب؟
-          <br />
-          اختار الفرع وتواصل معنا مباشرة.
-        </p>
-        <label>
-          اختر الفرع
-          <select
-            aria-label="اختر الفرع"
-            value={id}
-            onChange={(e) => setId(e.target.value)}
-          >
-            {branches.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="contact-photo">
+        <img
+          src="/images/editorial.jpg"
+          alt="B40 Jericho — ستايل كل يوم"
+          width="1000"
+          height="1250"
+        />
+      </div>
+      <TextReveal className="contact-copy">
+        <span className="eyebrow" dir="ltr">
+          B40 JERICHO
+        </span>
+        <h1>تواصل معنا</h1>
+        <p>عندك سؤال عن قطعة أو مقاس؟</p>
+        <a
+          className="button"
+          href={storeInfo.whatsappUrl}
+          target="_blank"
+          rel="noreferrer"
+        >
+          تواصل عبر واتساب <MessageCircle size={19} />
+        </a>
+        <div className="contact-links">
+          <a href={storeInfo.instagramUrl} target="_blank" rel="noreferrer">
+            <Camera size={19} />
+            <bdi>@{storeInfo.instagram}</bdi>
+            <ArrowUpLeft size={18} />
+          </a>
+          <a href={"tel:" + storeInfo.phone}>
+            <Phone size={19} />
+            <bdi>{storeInfo.phone}</bdi>
+            <ArrowUpLeft size={18} />
+          </a>
+        </div>
       </TextReveal>
-      <BranchCard branch={branches[index]} index={index} />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X, ShoppingBag, ArrowUpLeft } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { storeInfo } from "../data/branches";
+import "../styles/storefrontTheme.css";
 
 const links = [
   ["الرئيسية", "/"],
@@ -136,7 +137,16 @@ export default function StoreLayout() {
           )}
         </AnimatePresence>
       </header>
-      <main id="main" tabIndex={-1}>
+      <main
+        id="main"
+        className={
+          location.pathname === "/admin" ||
+          location.pathname.startsWith("/admin/")
+            ? undefined
+            : "storefront-theme"
+        }
+        tabIndex={-1}
+      >
         <Outlet />
       </main>
       <footer className="footer">
@@ -160,6 +170,9 @@ export default function StoreLayout() {
           >
             WhatsApp: {storeInfo.phone}
           </a>
+          <Link to="/admin" className="footer-admin" dir="rtl">
+            دخول الإدارة
+          </Link>
         </div>
         <div className="container footer-bottom" dir="ltr">
           This site was created by <span>Nexaura</span>

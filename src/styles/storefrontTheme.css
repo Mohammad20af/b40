@@ -1,0 +1,220 @@
+/* Storefront colors are scoped so the existing Admin UI keeps its theme. */
+.storefront-theme,
+.header,
+.footer {
+  --bg: #ffffff;
+  --panel: #f5f5f3;
+  --accent: #f26a21;
+  --accent-hover: #d95a17;
+  --text: #111111;
+  --muted: #767676;
+  --border: #e6e6e6;
+  --black-secondary: #1a1a1a;
+  --gray-dark: #2b2b2b;
+}
+
+.storefront-theme {
+  color: var(--text);
+  background: var(--bg);
+}
+
+.header {
+  background: var(--text);
+  color: #ffffff;
+  border-color: var(--gray-dark);
+}
+
+.brand img,
+.admin-login-logo {
+  object-fit: contain;
+}
+
+.header a,
+.header .icon-button,
+.footer a {
+  transition: color 0.2s;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a.active,
+.header .mobile-nav a:hover,
+.header .bag:hover,
+.header .icon-button:hover {
+  color: var(--accent);
+}
+
+.header .bag span {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.header .mobile-nav {
+  background: var(--black-secondary);
+}
+
+.header .mobile-nav > a {
+  border-color: var(--gray-dark);
+}
+
+.storefront-theme .hero {
+  background: var(--panel);
+}
+
+.storefront-theme .hero-copy .eyebrow {
+  color: var(--muted);
+}
+
+.storefront-theme .hero-art img {
+  object-fit: cover;
+  object-position: 50% 40%;
+}
+
+.storefront-theme .button {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.storefront-theme .button:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
+}
+
+.storefront-theme .button-outline {
+  background: var(--text);
+  border-color: var(--text);
+  color: #ffffff;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.storefront-theme .button-outline:hover {
+  background: var(--black-secondary);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.storefront-theme .text-link {
+  border-color: var(--muted);
+}
+
+.storefront-theme
+  :is(
+    .text-link,
+    .text-button,
+    .instagram-handle,
+    .contact-links a,
+    .category-card
+  ) {
+  transition: color 0.2s;
+}
+
+.storefront-theme
+  :is(.instagram-handle, .contact-links a, .category-card):hover {
+  color: var(--accent);
+}
+
+.storefront-theme .quick-add:hover:not(:disabled) {
+  background: var(--text);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.storefront-theme .brand-story {
+  background: var(--gray-dark);
+  color: #ffffff;
+}
+
+.storefront-theme .brand-story-copy p {
+  color: var(--border);
+}
+
+.storefront-theme .whatsapp-cta {
+  background: var(--panel);
+}
+
+.storefront-theme
+  :is(
+    input,
+    select,
+    textarea,
+    .size-options button,
+    .quantity,
+    .summary-line.total
+  ) {
+  border-color: var(--muted);
+}
+
+.storefront-theme .size-options button[aria-pressed="true"],
+.storefront-theme .size-options button:hover {
+  border-color: var(--accent);
+}
+
+.storefront-theme .color-options button {
+  outline-color: var(--muted);
+}
+
+.storefront-theme .color-options button[aria-pressed="true"] {
+  outline-color: var(--accent);
+}
+
+.storefront-theme .stock {
+  color: var(--gray-dark);
+}
+
+.storefront-theme .error {
+  color: var(--accent-hover);
+}
+
+.storefront-theme .payment-option {
+  background: var(--panel);
+}
+
+.storefront-theme .toast {
+  background: var(--black-secondary);
+  color: #ffffff;
+}
+
+.storefront-theme .category-grid {
+  scrollbar-color: var(--muted) transparent;
+}
+
+.footer {
+  background: var(--text);
+  color: #ffffff;
+}
+
+.footer-main > a:not(:first-child) {
+  color: var(--border);
+}
+
+.footer-main > a.footer-admin {
+  color: var(--muted);
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.footer a:hover {
+  color: var(--accent);
+}
+
+.footer-bottom {
+  border-color: var(--gray-dark);
+  color: var(--muted);
+}
+
+.footer-bottom span {
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .storefront-theme .hero-art img {
+    object-position: 50% 45%;
+  }
+}

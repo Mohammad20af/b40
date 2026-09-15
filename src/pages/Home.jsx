@@ -43,10 +43,10 @@ export default function Home() {
         </div>
         <div className="hero-art">
           <img
-            src="/images/editorial.jpg"
-            alt="إطلالة ستريت وير بجاكيت أسود وبنطال بقصة مريحة"
-            width="1000"
-            height="1250"
+            src="/images/b40-hero.jpg"
+            alt="تشكيلة ملابس وأحذية B40 السوداء في متجر بإضاءة برتقالية"
+            width="941"
+            height="1672"
             fetchPriority="high"
           />
           <span className="hero-photo-label" dir="ltr">

@@ -179,6 +179,7 @@ test("checkout validates fields and prepares correct Jericho WhatsApp message", 
   await page.getByRole("button", { name: "تأكيد الطلب التجريبي" }).click();
   const link = page.getByRole("link", { name: "فتح الرسالة في واتساب" });
   await expect(link).toBeVisible();
+  const orderId = await page.locator(".order-success .eyebrow").textContent();
   const url = new URL(await link.getAttribute("href"));
   expect(url.pathname).toBe("/972533781655");
   const message = url.searchParams.get("text");
@@ -191,12 +192,21 @@ test("checkout validates fields and prepares correct Jericho WhatsApp message", 
     "٢٧٣",
   ])
     expect(message).toContain(value);
+  await signInDemo(page);
+  await page.goto("/admin/orders");
+  await page.getByRole("textbox", { name: "البحث في الطلبات" }).fill(orderId);
+  await expect(page.locator(".admin-order-card")).toHaveCount(1);
+  await expect(page.locator(".admin-order-card")).toContainText("عميل تجريبي");
+  await expect(page.locator(".admin-order-card .status-badge")).toHaveText(
+    "جديد",
+  );
+  await expect(page.locator(".admin-order-card")).toContainText("٢٧٣");
   await page.goto("/cart");
   await expect(
     page.getByRole("heading", { name: "حقيبتك تنتظر أول قطعة" }),
   ).toBeVisible();
 });
-test("Jericho contact links, admin preview and mobile keyboard dismissal", async ({
+test("Jericho contact links, admin navigation and mobile keyboard dismissal", async ({
   page,
 }, info) => {
   await page.goto("/contact");
@@ -206,15 +216,19 @@ test("Jericho contact links, admin preview and mobile keyboard dismissal", async
     "https://wa.me/972533781655",
   );
   await signInDemo(page);
+  await page.goto("/admin/products");
   await page.getByRole("button", { name: "إضافة منتج", exact: true }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
   for (const name of ["الطلبات", "التصنيفات", "مناطق التوصيل"]) {
-    await page.getByRole("tab", { name, exact: true }).click();
-    await expect(page.getByRole("tabpanel")).toContainText(
+    await page
+      .getByRole("navigation", { name: "أقسام الإدارة" })
+      .getByRole("link", { name, exact: true })
+      .click();
+    await expect(page.locator(".admin-content")).toContainText(
       name === "الطلبات"
-        ? "معاينة الطلبات"
+        ? "إدارة الطلبات"
         : name === "التصنيفات"
           ? "تيشيرتات"
           : "القدس",

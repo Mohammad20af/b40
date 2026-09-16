@@ -3,13 +3,15 @@ import { Link, useParams } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ShoppingBag, Truck, ShieldCheck } from "lucide-react";
 import { catalogService } from "../services/store";
+import { useCatalog } from "../hooks/useStore";
 import { useCart } from "../hooks/useCart";
 import { Empty, Price, Quantity, Heading } from "../components/UI";
 import ProductCard from "../components/ProductCard";
 
 export default function Product() {
   const { id } = useParams();
-  const product = catalogService.get(id);
+  const products = useCatalog();
+  const product = products.find((p) => p.id === id);
   return product ? (
     <ProductContent key={id} product={product} />
   ) : (
@@ -54,7 +56,7 @@ function ProductContent({ product }) {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: reduced ? 1 : 0 }}
                 transition={{ duration: 0.18 }}
-                src={product.images[image]}
+                src={product.images[image] || product.images[0]}
                 alt={`${product.name} — ${image === 0 ? "صورة المنتج" : "صورة إلهام للإطلالة"}`}
                 width="800"
                 height="1000"

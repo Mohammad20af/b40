@@ -4,6 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Menu, X, ShoppingBag, ArrowUpLeft } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { storeInfo } from "../data/branches";
+import FloatingSocial from "../components/FloatingSocial";
 import "../styles/storefrontTheme.css";
 
 const links = [
@@ -16,6 +17,8 @@ export default function StoreLayout() {
   const [open, setOpen] = useState(false);
   const { count } = useCart();
   const location = useLocation();
+  const isAdmin =
+    location.pathname === "/admin" || location.pathname.startsWith("/admin/");
   const menuButton = useRef(null);
   const reduced = useReducedMotion();
   function followLink(to) {
@@ -57,7 +60,7 @@ export default function StoreLayout() {
     return () => window.removeEventListener("keydown", onKey);
   }, [open]);
   return (
-    <>
+    <div className={isAdmin ? "admin-layout" : "public-layout"}>
       <a className="skip-link" href="#main">
         انتقل إلى المحتوى
       </a>
@@ -178,6 +181,7 @@ export default function StoreLayout() {
           This site was created by <span>Nexaura</span>
         </div>
       </footer>
-    </>
+      {!isAdmin && <FloatingSocial />}
+    </div>
   );
 }

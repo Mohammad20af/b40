@@ -64,6 +64,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                   <Route path="admin/login" element={<AdminLogin />} />
                   <Route element={<ProtectedRoute />}>
                     <Route path="admin" element={<Admin />} />
+                    <Route path="admin/:section" element={<Admin />} />
                   </Route>
                   <Route
                     path="*"

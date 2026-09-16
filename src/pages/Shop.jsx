@@ -3,11 +3,12 @@ import { Search, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
 import ProductCard from "../components/ProductCard";
 import { categories } from "../data/products";
-import { catalogService } from "../services/store";
+import { useCatalog } from "../hooks/useStore";
 import { filterProducts, money } from "../utils/shop";
 import { TextReveal } from "../components/ScrollMotion";
 
 export default function Shop() {
+  const products = useCatalog();
   const [params, setParams] = useSearchParams();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const filters = {
@@ -28,7 +29,7 @@ export default function Shop() {
       },
       { replace: true },
     );
-  const results = filterProducts(catalogService.list(), filters);
+  const results = filterProducts(products, filters);
   return (
     <div className="container page">
       <TextReveal className="page-heading">

@@ -7,7 +7,7 @@ import {
   ParallaxImage,
 } from "../components/ScrollMotion";
 import ProductCard from "../components/ProductCard";
-import { catalogService } from "../services/store";
+import { useCatalog } from "../hooks/useStore";
 import { storeInfo } from "../data/branches";
 
 const categories = [
@@ -24,6 +24,7 @@ const socialImages = [
   ["tee", "أساسيات كل يوم"],
 ];
 export default function Home() {
+  const products = useCatalog();
   return (
     <>
       <section className="hero" aria-labelledby="hero-title">
@@ -97,8 +98,7 @@ export default function Home() {
           </Link>
         </div>
         <div className="product-grid">
-          {catalogService
-            .list()
+          {products
             .filter((p) => p.featured)
             .slice(0, 4)
             .map((p, i) => (

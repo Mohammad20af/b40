@@ -33,7 +33,11 @@ The production bundle is written to `dist/`, which is excluded from Git. Deploy 
 | `/branches` | Legacy URL redirects to the Jericho contact page |
 | `/contact` | Jericho Instagram, WhatsApp and phone links |
 | `/admin/login` | Arabic demo login with email, password, visibility toggle, and validation |
-| `/admin` | Existing visual products, orders, categories and delivery preview, behind the demo login; logout added, preview actions unchanged |
+| `/admin` | Protected RTL dashboard with product/order statistics and latest orders |
+| `/admin/products` | Persistent product creation, editing, deletion, local image upload/preview, sizes, colors and availability |
+| `/admin/orders` | Order details, status progression/cancellation, counters, status filters and customer/phone/order search |
+| `/admin/categories` | Existing category counts |
+| `/admin/delivery` | Existing delivery zones and prices |
 
 Unknown routes/products and empty carts have useful recovery screens. The layout adapts to small phones, tablets and desktops, with keyboard focus indicators and reduced-motion support. Fonts and photographs are served locally. Product cards include a quick-add dialog with explicit size and color selection, keyboard dismissal, and focus restoration. Product links still open the full detail page.
 
@@ -50,7 +54,11 @@ These are intentionally public, fake presentation credentials. `src/services/dem
 
 **DEMO ONLY:** this is not secure authentication. Credentials and the browser flag are visible and can be bypassed. The explicit developer comments in `demoAuth.js` and `ProtectedRoute.jsx` require replacing this flow with backend authentication and server-side authorization before production. No JWT, bcrypt, database, backend, or additional dependency was added.
 
-Login styles are scoped in `src/styles/adminAuth.css`; the dashboard keeps its existing demo functionality and shares the Jericho visual theme.
+Login styles are scoped in `src/styles/adminAuth.css`; the dashboard uses `src/styles/admin.css` and preserves the black/orange identity. Public pages share floating WhatsApp and Instagram controls using the existing contact destinations in `src/data/branches.js`.
+
+Products and orders persist under `b40-products-v1` and `b40-orders-v1` in this browser's localStorage. The original twelve products and five explicitly marked sample orders are initial fallbacks; an intentionally empty saved list stays empty. Product changes update the storefront and cart, including across open tabs. Storage failures keep the editor open and display an error instead of reporting success.
+
+Image selection accepts JPG/JPEG, PNG and WEBP, supports drag-and-drop, replacement and removal, and previews before saving. `src/services/images.js` validates files (10 MB maximum), resizes to at most 1200 pixels and encodes WEBP to reduce localStorage usage. Replace this adapter with an upload API returning an image reference when adding backend storage. Existing secondary gallery images are retained when replacing the main image.
 
 ## Project structure and customization
 
@@ -83,9 +91,9 @@ Colors are CSS variables at the top of `src/styles/global.css`, including `--acc
 - Replace delivery zone/quote adapters with API pricing and resolve asynchronous quotes in checkout.
 - Replace `orderService.preview` with a real validated order endpoint. Server-side prices, stock and totals must become authoritative when the backend is introduced.
 - Replace the current catalog-backed cart resolution with API products and availability checks.
-- Replace `demoAuth.js`, `useDemoAuth.js`, and the presentation-only route guard with backend authentication and server-side authorization before converting the admin preview into real management functionality.
+- Replace `demoAuth.js`, `useDemoAuth.js`, and the presentation-only route guard with backend authentication and server-side authorization before using management features in production.
 
-Checkout currently stores only the cart in localStorage. Customer information stays in React state and is not submitted. Simulated confirmation clears the cart and shows a message preview. Opening WhatsApp requires the customer's click, and the customer then sends the message manually. Refreshing the confirmation page does not retain the preview. Every checkout uses Jericho: `972533781655`. Instagram is `@b40.jericho`.
+Checkout saves a simulated order, customer/delivery details and item snapshots locally for the dashboard, then clears the cart and shows the WhatsApp message preview. No order is sent automatically. Opening WhatsApp requires the customer's click, and the customer then sends the message manually. Refreshing the confirmation page does not retain that screen, but the order remains in the local dashboard. Every checkout uses Jericho: `972533781655`. Instagram is `@b40.jericho`.
 
 ## Validation
 
@@ -100,7 +108,7 @@ Browser tests use locally installed Google Chrome in headless mode and automatic
 
 Checks cover route rendering, RTL, image loading, horizontal overflow, catalog filters, sizes/colors, cart refresh/quantities/removal, corrupt storage, unavailable products, checkout validation, totals, Jericho WhatsApp messages and quick-add variants, admin preview, keyboard navigation and mobile menus. QA fixed an unavailable icon export, the favicon request, query-filter scroll jumps, and browser-dependent Arabic number formatting.
 
-`tests/e2e/admin-auth.spec.js` additionally checks direct-route redirects, valid/invalid demo login, password visibility, refresh persistence, logout, cart preservation, invalid stored flags, blocked storage, cross-tab logout, and the responsive login screen. Existing dashboard regression checks log in using `tests/e2e/helpers/admin.js` before exercising the original admin interface.
+`tests/e2e/admin-auth.spec.js` additionally checks direct-route redirects, valid/invalid demo login, password visibility, refresh persistence, logout, cart preservation, invalid stored flags, blocked storage, cross-tab logout, and the responsive login screen. `tests/e2e/admin-management.spec.js` covers product/image persistence, storefront/cart integration, failed writes, order transitions, cancellation, counters, filters/search, social controls and the new routes at desktop and phone widths. Dashboard checks log in using `tests/e2e/helpers/admin.js`.
 
 ## Git and GitHub
 

@@ -47,7 +47,8 @@ test("direct admin access redirects; demo login persists after refresh", async (
   ).toBeVisible();
   await page.goto("/admin/login");
   await expect(page).toHaveURL(/\/admin$/);
-  await expect(page.locator("tbody tr")).toHaveCount(12);
+  await page.goto("/admin/products");
+  await expect(page.locator(".admin-product-card")).toHaveCount(12);
   expect(errors).toEqual([]);
 });
 

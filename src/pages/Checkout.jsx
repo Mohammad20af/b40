@@ -65,7 +65,9 @@ export default function Checkout() {
       setOrder({ ...preview, message: orderMessage(payload) });
       clear();
     } catch {
-      setError("تعذّر تجهيز المعاينة. حاول مرة أخرى.");
+      setError(
+        "تعذّر حفظ الطلب التجريبي. تحقق من مساحة التخزين وإعدادات المتصفح ثم حاول مرة أخرى.",
+      );
     } finally {
       setBusy(false);
     }

@@ -1,10 +1,11 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { products } from "../data/products";
+import { useCatalog } from "./useStore";
 import { itemKey, sanitizeCart } from "../utils/shop";
 
 const CartContext = createContext(null);
 const storageKey = "b40-cart-v1";
 export function CartProvider({ children }) {
+  const products = useCatalog();
   const [entries, setEntries] = useState(() => {
     try {
       return sanitizeCart(
@@ -28,7 +29,7 @@ export function CartProvider({ children }) {
     const timer = setTimeout(() => setNotice(""), 3500);
     return () => clearTimeout(timer);
   }, [notice]);
-  const items = entries.map((e) => ({
+  const items = sanitizeCart(entries, products).map((e) => ({
     ...e,
     product: products.find((p) => p.id === e.id),
   }));

@@ -113,6 +113,7 @@ test("search, category, price, size, availability and reset filters work", async
   await page.getByRole("textbox", { name: "ابحث عن منتج" }).fill("هودي");
   await expect(page.locator(".product-card")).toHaveCount(2);
   await page.getByRole("textbox", { name: "ابحث عن منتج" }).fill("");
+  await expect(page.locator(".product-card")).toHaveCount(12);
   if (info.project.name === "mobile")
     await page.getByRole("button", { name: "تصفية", exact: true }).click();
   await page.getByRole("radio", { name: "أحذية", exact: true }).click();
@@ -123,6 +124,7 @@ test("search, category, price, size, availability and reset filters work", async
   await page.getByRole("button", { name: "M", exact: true }).click();
   await expect(page.locator(".product-card")).toHaveCount(0);
   await page.getByRole("button", { name: "مسح الكل", exact: true }).click();
+  await expect(page.locator(".product-card")).toHaveCount(12);
   await page.getByRole("checkbox", { name: "المتوفر فقط" }).click();
   await expect(
     page.getByRole("checkbox", { name: "المتوفر فقط" }),
@@ -154,47 +156,101 @@ test("cart survives refresh, updates quantities, preserves variants, and removes
     page.getByRole("heading", { name: "حقيبتك تنتظر أول قطعة" }),
   ).toBeVisible();
 });
-test("checkout validates fields and prepares correct Jericho WhatsApp message", async ({
-  page,
-}) => {
-  await addItem(page);
-  await page.goto("/checkout");
-  await page.getByRole("button", { name: "تأكيد الطلب التجريبي" }).click();
-  await expect(page.locator("input[name=name]")).toBeFocused();
+async function fillCheckout(page) {
   await page.getByRole("textbox", { name: "الاسم الكامل" }).fill("عميل تجريبي");
   await page.getByRole("textbox", { name: "رقم الهاتف" }).fill("0500000000");
   await page
-    .getByRole("combobox", { name: "المحافظة", exact: true })
+    .getByRole("combobox", { name: "المنطقة", exact: true })
     .selectOption("jericho");
   await page
-    .getByRole("textbox", { name: "المنطقة", exact: true })
-    .fill("وسط المدينة");
-  await page
-    .getByRole("textbox", { name: "العنوان الكامل" })
+    .getByRole("textbox", { name: "العنوان بالتفصيل" })
     .fill("عنوان تجريبي للعرض");
+}
+
+test("checkout saves numbered orders on-site without WhatsApp or external navigation", async ({
+  page,
+  context,
+}) => {
+  const externalRequests = [],
+    popups = [],
+    errors = [];
+  page.on("request", (request) => {
+    if (
+      /^https?:/.test(request.url()) &&
+      new URL(request.url()).origin !== "http://127.0.0.1:4173"
+    )
+      externalRequests.push(request.url());
+  });
+  page.on("popup", (popup) => popups.push(popup.url()));
+  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  await addItem(page);
+  await page.goto("/cart");
+  await expect(page.locator(".cart-item")).toHaveCount(1);
+  await page.goto("/checkout");
+  await page.getByRole("button", { name: "تأكيد الطلب", exact: true }).click();
+  await expect(page.locator("input[name=name]")).toBeFocused();
+  await fillCheckout(page);
+  await page
+    .getByRole("textbox", { name: "ملاحظات (اختياري)" })
+    .fill("الاتصال قبل التوصيل");
   await expect(
     page.getByRole("combobox", { name: "اختيار الفرع", exact: true }),
   ).toHaveCount(0);
   await expect(page.locator(".total")).toContainText("٢٧٣");
-  await page.getByRole("button", { name: "تأكيد الطلب التجريبي" }).click();
-  const link = page.getByRole("link", { name: "فتح الرسالة في واتساب" });
-  await expect(link).toBeVisible();
-  const orderId = await page.locator(".order-success .eyebrow").textContent();
-  const url = new URL(await link.getAttribute("href"));
-  expect(url.pathname).toBe("/972533781655");
-  const message = url.searchParams.get("text");
-  for (const value of [
-    "أريحا",
-    "عميل تجريبي",
-    "المقاس: M",
-    "رمادي",
-    "الكمية: 2",
-    "٢٧٣",
-  ])
-    expect(message).toContain(value);
+  await page.getByRole("button", { name: "تأكيد الطلب", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "تم استلام طلبك بنجاح" }),
+  ).toBeVisible();
+  await expect(page.locator(".order-success")).toContainText(
+    "رقم طلبك: B40-1001",
+  );
+  await expect(page).toHaveURL(/\/checkout$/);
+  await expect(
+    page.locator('.order-success a[href^="http"], .whatsapp-preview'),
+  ).toHaveCount(0);
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("b40-orders-v1")),
+  );
+  expect(saved).toHaveLength(6);
+  expect(saved[0]).toMatchObject({
+    id: "B40-1001",
+    status: "new",
+    simulated: false,
+    subtotal: 258,
+    delivery: 15,
+    customer: {
+      name: "عميل تجريبي",
+      phone: "0500000000",
+      area: "أريحا",
+      address: "عنوان تجريبي للعرض",
+      notes: "الاتصال قبل التوصيل",
+    },
+  });
+  expect(saved[0].items[0]).toMatchObject({
+    quantity: 2,
+    size: "M",
+    color: "رمادي",
+  });
+  expect(saved[0]).not.toHaveProperty("message");
+  await expect
+    .poll(() =>
+      page.evaluate(() => JSON.parse(localStorage.getItem("b40-cart-v1"))),
+    )
+    .toEqual([]);
+  await page.reload();
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("b40-orders-v1"))[0].id,
+    ),
+  ).toBe("B40-1001");
   await signInDemo(page);
   await page.goto("/admin/orders");
-  await page.getByRole("textbox", { name: "البحث في الطلبات" }).fill(orderId);
+  await page
+    .getByRole("textbox", { name: "البحث في الطلبات" })
+    .fill("B40-1001");
   await expect(page.locator(".admin-order-card")).toHaveCount(1);
   await expect(page.locator(".admin-order-card")).toContainText("عميل تجريبي");
   await expect(page.locator(".admin-order-card .status-badge")).toHaveText(
@@ -205,6 +261,50 @@ test("checkout validates fields and prepares correct Jericho WhatsApp message", 
   await expect(
     page.getByRole("heading", { name: "حقيبتك تنتظر أول قطعة" }),
   ).toBeVisible();
+  await addItem(page);
+  await page.goto("/checkout");
+  await fillCheckout(page);
+  await page.getByRole("button", { name: "تأكيد الطلب", exact: true }).click();
+  await expect(page.locator(".order-success")).toContainText(
+    "رقم طلبك: B40-1002",
+  );
+  expect(
+    await page.evaluate(
+      () => JSON.parse(localStorage.getItem("b40-orders-v1")).length,
+    ),
+  ).toBe(7);
+  expect(context.pages()).toHaveLength(1);
+  expect(popups).toEqual([]);
+  expect(externalRequests).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("checkout keeps the cart and customer details when order storage fails", async ({
+  page,
+}) => {
+  await addItem(page);
+  await page.goto("/checkout");
+  await fillCheckout(page);
+  await page.evaluate(() => {
+    const original = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      if (key === "b40-orders-v1")
+        throw new DOMException("Storage full", "QuotaExceededError");
+      return original.call(this, key, value);
+    };
+  });
+  await page.getByRole("button", { name: "تأكيد الطلب", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("تعذّر حفظ الطلب");
+  await expect(page.locator(".order-success")).toHaveCount(0);
+  await expect(page.getByRole("textbox", { name: "الاسم الكامل" })).toHaveValue(
+    "عميل تجريبي",
+  );
+  expect(
+    await page.evaluate(() => JSON.parse(localStorage.getItem("b40-cart-v1"))),
+  ).toHaveLength(1);
+  expect(
+    await page.evaluate(() => localStorage.getItem("b40-orders-v1")),
+  ).toBeNull();
 });
 test("Jericho contact links, admin navigation and mobile keyboard dismissal", async ({
   page,

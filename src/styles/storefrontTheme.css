@@ -56,6 +56,37 @@
   border-color: var(--gray-dark);
 }
 
+.header .desktop-nav .nav-admin,
+.header .mobile-nav .nav-admin {
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+.header .nav-admin::after {
+  content: none;
+}
+.header .desktop-nav .nav-admin:hover,
+.header .mobile-nav .nav-admin:hover {
+  background: var(--accent);
+  color: var(--text);
+}
+.header .mobile-nav .nav-admin {
+  align-self: stretch;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
 .storefront-theme .hero {
   background: var(--panel);
 }

@@ -7,6 +7,13 @@ import { useCatalog } from "../hooks/useStore";
 import { useCart } from "../hooks/useCart";
 import { Empty, Price, Quantity, Heading } from "../components/UI";
 import ProductCard from "../components/ProductCard";
+import {
+  canPurchase,
+  remainingStock,
+  sizeStock,
+  totalStock,
+} from "../utils/inventory.js";
+import { itemKey } from "../utils/shop";
 
 export default function Product() {
   const { id } = useParams();
@@ -27,14 +34,22 @@ function ProductContent({ product }) {
     [color, setColor] = useState(product.colors[0].name),
     [quantity, setQuantity] = useState(1),
     [error, setError] = useState("");
-  const { add } = useCart();
+  const { add, items } = useCart();
+  const purchasable = canPurchase(product);
+  const inLine =
+    items.find((i) => i.key === itemKey(product.id, size, color))?.quantity ||
+    0;
+  const limit = size
+    ? Math.min(10 - inLine, remainingStock(product, size, items))
+    : 0;
+  const selectedQuantity = Math.min(quantity, Math.max(0, limit));
   const reduced = useReducedMotion();
   function addProduct() {
     if (!size) {
       setError("اختر المقاس أولاً");
       return;
     }
-    add(product, size, color, quantity);
+    add(product, size, color, selectedQuantity);
     setError("");
   }
   return (
@@ -82,8 +97,12 @@ function ProductContent({ product }) {
           <h1>{product.name}</h1>
           <Price product={product} />
           <p className="product-description">{product.description}</p>
-          <p className={product.available ? "stock" : "muted"}>
-            {product.available ? "● متوفر الآن" : "غير متوفر حالياً"}
+          <p className={purchasable ? "stock" : "muted"}>
+            {totalStock(product) === 0
+              ? "نفد من المخزون"
+              : product.available
+                ? "● متوفر الآن"
+                : "غير متوفر حالياً"}
           </p>
           <fieldset>
             <legend>المقاس</legend>
@@ -91,13 +110,16 @@ function ProductContent({ product }) {
               {product.sizes.map((s) => (
                 <button
                   key={s}
-                  aria-pressed={s === size}
+                  aria-pressed={s === size && sizeStock(product, s) > 0}
+                  disabled={sizeStock(product, s) === 0}
                   onClick={() => {
                     setSize(s);
+                    setQuantity(1);
                     setError("");
                   }}
                 >
                   {s}
+                  {sizeStock(product, s) === 0 ? " - نفد" : ""}
                 </button>
               ))}
             </div>
@@ -117,15 +139,27 @@ function ProductContent({ product }) {
             </div>
           </fieldset>
           <div className="add-row">
-            <Quantity value={quantity} onChange={setQuantity} />
+            <Quantity
+              value={size ? selectedQuantity : 1}
+              max={limit}
+              onChange={setQuantity}
+            />
             <button
               className="button"
-              disabled={!product.available}
+              disabled={!purchasable || (!!size && limit === 0)}
               onClick={addProduct}
             >
               <ShoppingBag size={18} /> أضف إلى الحقيبة
             </button>
           </div>
+          {purchasable &&
+            size &&
+            limit === 0 &&
+            sizeStock(product, size) > 0 && (
+              <p className="small muted">
+                كل الكمية المتوفرة لهذا المقاس موجودة في الحقيبة.
+              </p>
+            )}
           <p role="alert" className="error">
             {error}
           </p>

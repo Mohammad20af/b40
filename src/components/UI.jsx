@@ -28,7 +28,7 @@ export function Price({ product }) {
     </span>
   );
 }
-export function Quantity({ value, onChange }) {
+export function Quantity({ value, onChange, max = 10 }) {
   return (
     <div className="quantity">
       <button
@@ -43,7 +43,7 @@ export function Quantity({ value, onChange }) {
       <button
         type="button"
         aria-label="زيادة الكمية"
-        disabled={value >= 10}
+        disabled={value >= max}
         onClick={() => onChange(value + 1)}
       >
         <Plus size={15} />

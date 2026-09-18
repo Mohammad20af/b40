@@ -97,6 +97,13 @@ export default function StoreLayout() {
                 {label}
               </NavLink>
             ))}
+            <Link
+              to="/admin/login"
+              className="nav-admin"
+              onClick={() => followLink("/admin/login")}
+            >
+              دخول الإدارة
+            </Link>
           </nav>
           <div className="nav-actions">
             <Link
@@ -136,6 +143,14 @@ export default function StoreLayout() {
                   <ArrowUpLeft size={18} />
                 </Link>
               ))}
+              <Link
+                to="/admin/login"
+                className="nav-admin"
+                onClick={() => followLink("/admin/login")}
+              >
+                دخول الإدارة
+                <ArrowUpLeft size={18} />
+              </Link>
             </motion.nav>
           )}
         </AnimatePresence>

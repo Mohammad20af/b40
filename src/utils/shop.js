@@ -1,9 +1,12 @@
+import { canPurchase, sizeStock } from "./inventory.js";
+
 export const money = (value) =>
   `${new Intl.NumberFormat("ar", { maximumFractionDigits: 2, numberingSystem: "arab" }).format(value)} ₪`;
 export const itemKey = (id, size, color) => [id, size, color].join("|");
 export function sanitizeCart(raw, catalog) {
   if (!Array.isArray(raw)) return [];
   const result = new Map();
+  const allocated = new Map();
   for (const entry of raw) {
     if (!entry || typeof entry !== "object") continue;
     const product = catalog.find((p) => p.id === entry.id && p.available);
@@ -17,11 +20,20 @@ export function sanitizeCart(raw, catalog) {
     if (!Number.isInteger(quantity) || quantity < 1) continue;
     const key = itemKey(entry.id, entry.size, entry.color);
     const previous = result.get(key)?.quantity || 0;
+    const stockKey = JSON.stringify([entry.id, entry.size]);
+    const used = allocated.get(stockKey) || 0;
+    const added = Math.min(
+      quantity,
+      10 - previous,
+      sizeStock(product, entry.size) - used,
+    );
+    if (added <= 0) continue;
+    allocated.set(stockKey, used + added);
     result.set(key, {
       id: entry.id,
       size: entry.size,
       color: entry.color,
-      quantity: Math.min(10, previous + quantity),
+      quantity: previous + added,
       key,
     });
   }
@@ -47,7 +59,7 @@ export function filterProducts(
           : p.category === category)) &&
       (!size || p.sizes.includes(size)) &&
       p.price <= Number(maxPrice) &&
-      (!available || p.available),
+      (!available || (canPurchase(p) && (!size || sizeStock(p, size) > 0))),
   );
   return sort === "low"
     ? results.sort((a, b) => a.price - b.price)

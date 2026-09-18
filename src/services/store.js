@@ -1,6 +1,8 @@
 import { products } from "../data/products";
 import { deliveryZones } from "../data/branches";
 import { demoOrders, orderStatuses } from "../data/orders";
+import { withInventory } from "../utils/inventory.js";
+import { sanitizeCart } from "../utils/shop.js";
 
 export const storageKeys = {
   products: "b40-products-v1",
@@ -83,12 +85,18 @@ const validOrder = (o) =>
 
 // Demo persistence adapters. Replace these methods with backend API calls later.
 export const catalogService = {
-  list: () => read(storageKeys.products, products, validProduct),
+  list: () =>
+    read(storageKeys.products, products, validProduct).map(withInventory),
   get: (id) => catalogService.list().find((p) => p.id === id),
   save(product) {
-    const record = { ...product, id: product.id || crypto.randomUUID() };
+    let record = { ...product, id: product.id || crypto.randomUUID() };
     if (!validProduct(record)) throw new Error("Invalid product");
     const current = catalogService.list();
+    const previous = current.find((p) => p.id === record.id);
+    record = withInventory({
+      ...record,
+      stockBySize: previous?.stockBySize ?? record.stockBySize,
+    });
     write(
       storageKeys.products,
       current.some((p) => p.id === record.id)
@@ -96,6 +104,21 @@ export const catalogService = {
         : [record, ...current],
     );
     return record;
+  },
+  setStock(id, size, quantity) {
+    if (!Number.isSafeInteger(quantity) || quantity < 0)
+      throw new Error("Invalid stock quantity");
+    const current = catalogService.list();
+    const product = current.find((p) => p.id === id);
+    if (!product?.sizes.includes(size)) throw new Error("Invalid product size");
+    write(
+      storageKeys.products,
+      current.map((p) =>
+        p.id === id
+          ? { ...p, stockBySize: { ...p.stockBySize, [size]: quantity } }
+          : p,
+      ),
+    );
   },
   remove(id) {
     write(
@@ -110,16 +133,43 @@ export const deliveryService = {
 };
 export const orderService = {
   list: () => read(storageKeys.orders, demoOrders, validOrder),
-  preview: async (order) => {
-    const record = {
-      ...order,
-      id: `B40-${crypto.randomUUID().slice(0, 8).toUpperCase()}`,
-      simulated: true,
-      status: "new",
-      createdAt: new Date().toISOString(),
+  create: async (order) => {
+    const save = () => {
+      const checked = sanitizeCart(order.items, catalogService.list());
+      if (
+        !checked.length ||
+        checked.length !== order.items.length ||
+        checked.some(
+          (item, index) => item.quantity !== order.items[index].quantity,
+        )
+      ) {
+        const error = new Error(
+          "تغيّر المخزون. راجع كميات الحقيبة ثم حاول مجدداً.",
+        );
+        error.code = "STOCK_CHANGED";
+        throw error;
+      }
+      const current = orderService.list();
+      const lastNumber = current.reduce((last, entry) => {
+        const match = /^B40-(\d+)$/.exec(entry.id);
+        return match ? Math.max(last, Number(match[1])) : last;
+      }, 1000);
+      const record = {
+        ...order,
+        id: `B40-${lastNumber + 1}`,
+        simulated: false,
+        status: "new",
+        createdAt: new Date().toISOString(),
+      };
+      if (!validOrder(record) || !record.items.length)
+        throw new Error("Invalid order");
+      write(storageKeys.orders, [record, ...current]);
+      return record;
     };
-    write(storageKeys.orders, [record, ...orderService.list()]);
-    return record;
+    // Keep numbering and writes together when multiple checkout tabs submit.
+    return navigator.locks
+      ? navigator.locks.request("b40-create-order", save)
+      : save();
   },
   setStatus(id, status) {
     const current = orderService.list();

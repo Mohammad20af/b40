@@ -33,7 +33,7 @@ test("cart merges matching variants, caps quantity and keeps sizes distinct", ()
       { id: "01", size: "M", color: "أسود", quantity: 8 },
       { id: "01", size: "L", color: "أسود", quantity: 1 },
     ],
-    products,
+    products.map((p) => ({ ...p, stockBySize: { M: 20 } })),
   );
   assert.equal(entries.length, 2);
   assert.equal(entries[0].quantity, 10);

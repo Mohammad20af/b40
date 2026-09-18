@@ -3,6 +3,7 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
+  Boxes,
   ShoppingBag,
   Tags,
   Truck,
@@ -15,6 +16,7 @@ import { categories } from "../data/products";
 import { money } from "../utils/shop";
 import { logoutDemo } from "../services/demoAuth";
 import ProductManager from "../components/admin/ProductManager";
+import InventoryManager from "../components/admin/InventoryManager";
 import OrdersManager, {
   OrderStats,
   OrderList,
@@ -24,6 +26,7 @@ import "../styles/admin.css";
 const sections = [
   ["", "لوحة التحكم", LayoutDashboard],
   ["products", "المنتجات", Package],
+  ["inventory", "المخزون", Boxes],
   ["orders", "الطلبات", ShoppingBag],
   ["categories", "التصنيفات", Tags],
   ["delivery", "مناطق التوصيل", Truck],
@@ -115,6 +118,8 @@ export default function Admin() {
           <ProductManager products={products} />
         ) : section === "orders" ? (
           <OrdersManager orders={orders} />
+        ) : section === "inventory" ? (
+          <InventoryManager products={products} />
         ) : section === "categories" ? (
           <div className="admin-reference-grid">
             {categories.map((c) => (

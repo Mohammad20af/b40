@@ -3,6 +3,7 @@ import { ArrowLeft, Trash2, ShoppingBag } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { Empty, Quantity } from "../components/UI";
 import { money } from "../utils/shop";
+import { remainingStock } from "../utils/inventory.js";
 
 export default function Cart() {
   const { items, count, subtotal, update, remove } = useCart();
@@ -39,6 +40,10 @@ export default function Cart() {
                 </p>
                 <Quantity
                   value={i.quantity}
+                  max={Math.min(
+                    10,
+                    remainingStock(i.product, i.size, items, i.key),
+                  )}
                   onChange={(n) => update(i.key, n)}
                 />
               </div>

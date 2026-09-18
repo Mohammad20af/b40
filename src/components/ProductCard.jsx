@@ -5,6 +5,8 @@ import { Plus, X, ShoppingBag } from "lucide-react";
 import { money } from "../utils/shop";
 import { useCart } from "../hooks/useCart";
 import { Reveal, ImageReveal } from "./ScrollMotion";
+import { canPurchase, remainingStock, sizeStock } from "../utils/inventory.js";
+import { itemKey } from "../utils/shop";
 
 export default function ProductCard({ product, index = 0 }) {
   const delay = (index % 4) * 0.055;
@@ -12,7 +14,12 @@ export default function ProductCard({ product, index = 0 }) {
   const titleId = useId();
   const [size, setSize] = useState("");
   const [color, setColor] = useState(product.colors[0].name);
-  const { add } = useCart();
+  const { add, items } = useCart();
+  const purchasable = canPurchase(product);
+  const inLine =
+    items.find((i) => i.key === itemKey(product.id, size, color))?.quantity ||
+    0;
+  const limit = Math.min(10 - inLine, remainingStock(product, size, items));
   return (
     <Reveal as="article" className="product-card" delay={delay}>
       <Link
@@ -29,9 +36,7 @@ export default function ProductCard({ product, index = 0 }) {
           width="600"
           height="750"
         />
-        {!product.available && (
-          <span className="tag sold-out">نفد المخزون</span>
-        )}
+        {!purchasable && <span className="tag sold-out">نفد من المخزون</span>}
       </Link>
       <div className="product-meta">
         <div>
@@ -44,7 +49,7 @@ export default function ProductCard({ product, index = 0 }) {
           className="quick-add"
           aria-label={`اختيار مقاس وإضافة ${product.name}`}
           aria-haspopup="dialog"
-          disabled={!product.available}
+          disabled={!purchasable}
           onClick={() => {
             setSize("");
             setColor(product.colors[0].name);
@@ -97,10 +102,12 @@ export default function ProductCard({ product, index = 0 }) {
               {product.sizes.map((s) => (
                 <button
                   key={s}
-                  aria-pressed={size === s}
+                  aria-pressed={size === s && sizeStock(product, s) > 0}
+                  disabled={sizeStock(product, s) === 0}
                   onClick={() => setSize(s)}
                 >
                   {s}
+                  {sizeStock(product, s) === 0 ? " - نفد" : ""}
                 </button>
               ))}
             </div>
@@ -121,15 +128,19 @@ export default function ProductCard({ product, index = 0 }) {
           </fieldset>
           <button
             className="button full"
-            disabled={!size || !product.available}
+            disabled={!size || !purchasable || limit === 0}
             onClick={() => {
-              add(product, size, color);
-              dialog.current.close();
+              if (add(product, size, color)) dialog.current.close();
             }}
           >
             <ShoppingBag size={18} />
             أضف إلى الحقيبة
           </button>
+          {size && purchasable && limit === 0 && (
+            <p className="small muted">
+              لا توجد كمية إضافية متوفرة لهذا المقاس.
+            </p>
+          )}
         </dialog>,
         document.body,
       )}

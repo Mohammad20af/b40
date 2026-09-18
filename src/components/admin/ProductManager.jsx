@@ -9,12 +9,25 @@ import AdminDialog from "./AdminDialog";
 
 export default function ProductManager({ products }) {
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
   const [dialog, setDialog] = useState(null);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
-  const filtered = products.filter((p) =>
-    `${p.name} ${p.category}`.includes(search.trim()),
+  const counts = new Map(categories.map((name) => [name, 0]));
+  for (const product of products)
+    counts.set(product.category, (counts.get(product.category) || 0) + 1);
+  const categoryCount = category ? counts.get(category) || 0 : products.length;
+  const filtered = products.filter(
+    (p) =>
+      (!category || p.category === category) &&
+      `${p.name} ${p.category}`
+        .toLocaleLowerCase()
+        .includes(search.trim().toLocaleLowerCase()),
   );
+  function addProduct() {
+    setDialog({ type: "edit", initialCategory: category });
+    setNotice("");
+  }
   function remove() {
     try {
       catalogService.remove(dialog.product.id);
@@ -26,6 +39,29 @@ export default function ProductManager({ products }) {
   }
   return (
     <>
+      <div
+        className="admin-product-filters"
+        role="group"
+        aria-label="تصنيف المنتجات"
+      >
+        <button
+          type="button"
+          aria-pressed={category === ""}
+          onClick={() => setCategory("")}
+        >
+          كل المنتجات <span>({products.length})</span>
+        </button>
+        {categories.map((name) => (
+          <button
+            type="button"
+            key={name}
+            aria-pressed={category === name}
+            onClick={() => setCategory(name)}
+          >
+            {name} <span>({counts.get(name)})</span>
+          </button>
+        ))}
+      </div>
       <div className="admin-toolbar">
         <label className="search">
           <Search size={19} />
@@ -36,18 +72,12 @@ export default function ProductManager({ products }) {
             onChange={(e) => setSearch(e.target.value)}
           />
         </label>
-        <button
-          className="button"
-          onClick={() => {
-            setDialog({ type: "edit" });
-            setNotice("");
-          }}
-        >
+        <button className="button" onClick={addProduct}>
           <Plus size={18} /> إضافة منتج
         </button>
       </div>
       <p className="admin-result-count">
-        {filtered.length} من {products.length} منتج
+        {filtered.length} من {categoryCount} منتج
       </p>
       <p role="status" className="admin-notice">
         {notice}
@@ -104,13 +134,21 @@ export default function ProductManager({ products }) {
         </div>
       ) : (
         <div className="admin-empty">
-          <h2>لا توجد منتجات بهذا البحث</h2>
+          <h2>
+            {category && categoryCount === 0
+              ? "لا توجد منتجات في هذا التصنيف"
+              : "لا توجد منتجات بهذا البحث"}
+          </h2>
           <p>أضف منتجاً أو غيّر كلمات البحث.</p>
+          <button type="button" className="button" onClick={addProduct}>
+            <Plus size={18} /> إضافة منتج
+          </button>
         </div>
       )}
       {dialog?.type === "edit" && (
         <ProductEditor
           product={dialog.product}
+          initialCategory={dialog.initialCategory}
           close={() => setDialog(null)}
           saved={() => {
             setDialog(null);
@@ -143,11 +181,11 @@ export default function ProductManager({ products }) {
   );
 }
 
-function ProductEditor({ product, close, saved }) {
+function ProductEditor({ product, initialCategory, close, saved }) {
   const [form, setForm] = useState({
     name: product?.name || "",
     price: product?.price ?? "",
-    category: product?.category || categories[0],
+    category: product?.category || initialCategory || categories[0],
     sizes: product?.sizes.join(", ") || "S, M, L, XL",
     colors: product?.colors.map((c) => c.name).join("، ") || "أسود، رمادي",
     description: product?.description || "",

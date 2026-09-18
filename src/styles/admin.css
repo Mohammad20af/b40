@@ -1,3 +1,75 @@
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: 18px;
+}
+.inventory-card {
+  min-width: 0;
+}
+.inventory-product {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.inventory-product img {
+  flex-shrink: 0;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.inventory-product > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.inventory-product h2 {
+  font-size: 17px;
+  margin: 6px 0;
+}
+.inventory-sizes {
+  display: grid;
+  gap: 14px;
+  margin: 22px 0;
+}
+.inventory-size {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.inventory-size-label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.inventory-size-label bdi {
+  overflow-wrap: anywhere;
+}
+.inventory-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.inventory-controls input {
+  width: 76px;
+  min-width: 0;
+  text-align: center;
+  padding: 8px 4px;
+}
+.inventory-controls button {
+  width: 40px;
+  height: 40px;
+}
+.inventory-card footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid #eeece7;
+  padding-top: 16px;
+  font-size: 13px;
+}
 .admin-shell {
   display: grid;
   grid-template-columns: 230px minmax(0, 1fr);
@@ -282,13 +354,15 @@
   width: 100%;
   background: white;
 }
-.admin-order-filters {
+.admin-order-filters,
+.admin-product-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin: 18px 0;
 }
-.admin-order-filters button {
+.admin-order-filters button,
+.admin-product-filters button {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -299,12 +373,14 @@
   font-size: 12px;
   min-height: 42px;
 }
-.admin-order-filters button[aria-pressed="true"] {
+.admin-order-filters button[aria-pressed="true"],
+.admin-product-filters button[aria-pressed="true"] {
   background: #20201e;
   color: white;
   border-color: #20201e;
 }
-.admin-order-filters button span {
+.admin-order-filters button span,
+.admin-product-filters button span {
   opacity: 0.7;
   font-size: 11px;
 }

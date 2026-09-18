@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Check, ArrowUpLeft, CreditCard } from "lucide-react";
+import { Check, CreditCard } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { Empty } from "../components/UI";
 import { storeInfo as branch } from "../data/branches";
 import { deliveryService, orderService } from "../services/store";
-import { money, orderMessage } from "../utils/shop";
+import { money } from "../utils/shop";
 
 export default function Checkout() {
   const { items, subtotal, clear } = useCart();
@@ -13,7 +13,7 @@ export default function Checkout() {
   const [customer, setCustomer] = useState({
     name: "",
     phone: "",
-    area: "",
+    area: zones.find((z) => z.id === "jericho").name,
     address: "",
     notes: "",
   });
@@ -61,12 +61,14 @@ export default function Checkout() {
         delivery,
         subtotal,
       };
-      const preview = await orderService.preview(payload);
-      setOrder({ ...preview, message: orderMessage(payload) });
+      const savedOrder = await orderService.create(payload);
+      setOrder(savedOrder);
       clear();
-    } catch {
+    } catch (error) {
       setError(
-        "تعذّر حفظ الطلب التجريبي. تحقق من مساحة التخزين وإعدادات المتصفح ثم حاول مرة أخرى.",
+        error.code === "STOCK_CHANGED"
+          ? error.message
+          : "تعذّر حفظ الطلب. تحقق من مساحة التخزين وإعدادات المتصفح ثم حاول مرة أخرى.",
       );
     } finally {
       setBusy(false);
@@ -78,24 +80,28 @@ export default function Checkout() {
         <div className="success-icon">
           <Check size={34} />
         </div>
-        <span className="eyebrow">{order.id}</span>
-        <h1>طلبك جاهز للمراجعة</h1>
-        <p>معاينة تجريبية. لم يُرسل الطلب بعد.</p>
+        <h1>تم استلام طلبك بنجاح</h1>
+        <p>
+          رقم طلبك: <bdi>{order.id}</bdi>
+        </p>
         <div className="summary">
-          <h2>معاينة رسالة واتساب — {order.branch.name}</h2>
-          <pre className="whatsapp-preview">{order.message}</pre>
-          <a
-            className="button full"
-            href={`https://wa.me/${order.branch.whatsapp}?text=${encodeURIComponent(order.message)}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            فتح الرسالة في واتساب
-            <ArrowUpLeft size={18} />
-          </a>
-          <p className="small muted">
-            راجع الرسالة في واتساب قبل إرسالها بنفسك.
-          </p>
+          <h2>ملخص الطلب</h2>
+          {order.items.map((item) => (
+            <div className="summary-line" key={item.key}>
+              <span>
+                {item.product.name} · الكمية: {item.quantity}
+              </span>
+              <span>{money(item.product.price * item.quantity)}</span>
+            </div>
+          ))}
+          <div className="summary-line">
+            <span>التوصيل</span>
+            <span>{money(order.delivery)}</span>
+          </div>
+          <div className="summary-line total">
+            <span>الإجمالي</span>
+            <strong>{money(order.subtotal + order.delivery)}</strong>
+          </div>
         </div>
         <Link className="text-link" to="/shop">
           العودة للتسوق
@@ -116,7 +122,7 @@ export default function Checkout() {
           B40 JERICHO
         </span>
         <h1>إتمام الطلب</h1>
-        <p>معاينة تجريبية — لن يتم إرسال طلب تلقائياً.</p>
+        <p>أدخل بياناتك لتأكيد طلبك داخل الموقع.</p>
       </div>
       <form className="checkout-layout" onSubmit={submit}>
         <div className="checkout-fields">
@@ -128,13 +134,20 @@ export default function Checkout() {
             {field("phone", "رقم الهاتف", {
               type: "tel",
               autoComplete: "tel",
-              pattern: "[+0-9 ()-]{9,20}",
+              pattern: "[+0-9 \\(\\)\\-]{9,20}",
             })}
             <label>
-              المحافظة
+              المنطقة
               <select
+                required
                 value={zoneId}
-                onChange={(e) => setZoneId(e.target.value)}
+                onChange={(e) => {
+                  setZoneId(e.target.value);
+                  setCustomer({
+                    ...customer,
+                    area: zones.find((z) => z.id === e.target.value).name,
+                  });
+                }}
               >
                 {zones.map((z) => (
                   <option key={z.id} value={z.id}>
@@ -143,8 +156,7 @@ export default function Checkout() {
                 ))}
               </select>
             </label>
-            {field("area", "المنطقة", { autoComplete: "address-level2" })}
-            {field("address", "العنوان الكامل", {
+            {field("address", "العنوان بالتفصيل", {
               wide: true,
               autoComplete: "street-address",
             })}
@@ -189,7 +201,7 @@ export default function Checkout() {
             <span>{money(subtotal)}</span>
           </div>
           <div className="summary-line">
-            <span>التوصيل (تجريبي)</span>
+            <span>التوصيل</span>
             <span>{money(delivery)}</span>
           </div>
           <div className="summary-line total">
@@ -197,7 +209,7 @@ export default function Checkout() {
             <strong>{money(subtotal + delivery)}</strong>
           </div>
           <button className="button full" disabled={busy} type="submit">
-            {busy ? "جارٍ التجهيز…" : "تأكيد الطلب التجريبي"}
+            {busy ? "جارٍ حفظ الطلب…" : "تأكيد الطلب"}
           </button>
           <p className="error" role="alert">
             {error}

@@ -1,6 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useCatalog } from "./useStore";
 import { itemKey, sanitizeCart } from "../utils/shop";
+import { catalogService } from "../services/store";
+import { remainingStock } from "../utils/inventory.js";
 
 const CartContext = createContext(null);
 const storageKey = "b40-cart-v1";
@@ -17,6 +19,18 @@ export function CartProvider({ children }) {
     }
   });
   const [notice, setNotice] = useState("");
+  const entriesRef = useRef(entries);
+  function commit(next) {
+    entriesRef.current = next;
+    setEntries(next);
+  }
+  useEffect(() => {
+    const next = sanitizeCart(entriesRef.current, products);
+    if (JSON.stringify(next) !== JSON.stringify(entriesRef.current)) {
+      commit(next);
+      setNotice("تم تعديل الحقيبة حسب المخزون المتوفر حالياً.");
+    }
+  }, [products]);
   useEffect(() => {
     try {
       localStorage.setItem(storageKey, JSON.stringify(entries));
@@ -34,25 +48,51 @@ export function CartProvider({ children }) {
     product: products.find((p) => p.id === e.id),
   }));
   const add = (product, size, color, quantity = 1) => {
-    if (!product.available) return;
-    setEntries((current) =>
+    const catalog = catalogService.list();
+    const latest = catalog.find((p) => p.id === product.id);
+    const current = sanitizeCart(entriesRef.current, catalog);
+    const key = itemKey(product.id, size, color);
+    const inLine = current.find((e) => e.key === key)?.quantity || 0;
+    if (
+      !latest?.available ||
+      !latest.colors.some((c) => c.name === color) ||
+      !Number.isInteger(quantity) ||
+      quantity < 1 ||
+      quantity > Math.min(10 - inLine, remainingStock(latest, size, current))
+    ) {
+      commit(current);
+      setNotice("الكمية المطلوبة غير متوفرة في المخزون. راجع الحقيبة.");
+      return false;
+    }
+    commit(
       sanitizeCart(
         [...current, { id: product.id, size, color, quantity }],
-        products,
+        catalog,
       ),
     );
     setNotice(`تمت إضافة ${product.name} إلى الحقيبة`);
+    return true;
   };
-  const update = (key, quantity) =>
-    setEntries((current) =>
+  const update = (key, quantity) => {
+    const catalog = catalogService.list();
+    const current = sanitizeCart(entriesRef.current, catalog);
+    const entry = current.find((e) => e.key === key);
+    if (!entry || !Number.isInteger(quantity)) return commit(current);
+    const product = catalog.find((p) => p.id === entry.id);
+    const nextQuantity = Math.max(
+      1,
+      Math.min(10, quantity, remainingStock(product, entry.size, current, key)),
+    );
+    commit(
       current.map((e) =>
-        e.key === key
-          ? { ...e, quantity: Math.max(1, Math.min(10, quantity)) }
-          : e,
+        e.key === key ? { ...e, quantity: nextQuantity } : e,
       ),
     );
+    if (nextQuantity !== quantity)
+      setNotice("تم تعديل الكمية حسب المخزون المتوفر.");
+  };
   const remove = (key) =>
-    setEntries((current) => current.filter((e) => e.key !== key));
+    commit(entriesRef.current.filter((e) => e.key !== key));
   return (
     <CartContext.Provider
       value={{
@@ -60,7 +100,7 @@ export function CartProvider({ children }) {
         add,
         update,
         remove,
-        clear: () => setEntries([]),
+        clear: () => commit([]),
         count: items.reduce((s, i) => s + i.quantity, 0),
         subtotal: items.reduce((s, i) => s + i.product.price * i.quantity, 0),
         itemKey,

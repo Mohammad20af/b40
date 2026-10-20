@@ -1,19 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useCatalog } from "./useStore";
 import { itemKey, sanitizeCart } from "../utils/shop";
-import { catalogService } from "../services/store";
+import { cartService, catalogService } from "../services/store";
 import { remainingStock } from "../utils/inventory.js";
 
 const CartContext = createContext(null);
-const storageKey = "b40-cart-v1";
 export function CartProvider({ children }) {
   const products = useCatalog();
   const [entries, setEntries] = useState(() => {
     try {
-      return sanitizeCart(
-        JSON.parse(localStorage.getItem(storageKey) || "[]"),
-        products,
-      );
+      return cartService.list(products);
     } catch {
       return [];
     }
@@ -33,7 +29,7 @@ export function CartProvider({ children }) {
   }, [products]);
   useEffect(() => {
     try {
-      localStorage.setItem(storageKey, JSON.stringify(entries));
+      cartService.save(entries);
     } catch {
       /* Cart remains usable when storage is unavailable. */
     }

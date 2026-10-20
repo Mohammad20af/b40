@@ -539,6 +539,34 @@
   background: #ac302a;
   border-color: #ac302a;
 }
+.admin-image-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 150px), 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.admin-gallery-image {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #e1ded6;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+}
+.admin-gallery-image > img {
+  width: 100%;
+  height: 110px;
+  object-fit: contain;
+}
+.admin-gallery-image > button {
+  font-size: 12px;
+}
+.admin-gallery-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+}
 .admin-upload {
   display: flex;
   flex-direction: column;

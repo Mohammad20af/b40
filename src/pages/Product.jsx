@@ -43,6 +43,7 @@ function ProductContent({ product }) {
     ? Math.min(10 - inLine, remainingStock(product, size, items))
     : 0;
   const selectedQuantity = Math.min(quantity, Math.max(0, limit));
+  const activeImage = Math.min(image, product.images.length - 1);
   const reduced = useReducedMotion();
   function addProduct() {
     if (!size) {
@@ -66,13 +67,13 @@ function ProductContent({ product }) {
           <div className="gallery-main">
             <AnimatePresence mode="wait">
               <motion.img
-                key={image}
+                key={product.images[activeImage]}
                 initial={{ opacity: reduced ? 1 : 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: reduced ? 1 : 0 }}
                 transition={{ duration: 0.18 }}
-                src={product.images[image] || product.images[0]}
-                alt={`${product.name} — ${image === 0 ? "صورة المنتج" : "صورة إلهام للإطلالة"}`}
+                src={product.images[activeImage]}
+                alt={`${product.name} — صورة ${activeImage + 1}`}
                 width="800"
                 height="1000"
               />
@@ -81,16 +82,15 @@ function ProductContent({ product }) {
           <div className="thumbnails">
             {product.images.map((src, i) => (
               <button
-                key={src}
+                key={`${i}-${src}`}
                 onClick={() => setImage(i)}
-                aria-label={i === 0 ? "صورة المنتج" : "صورة إلهام للإطلالة"}
-                aria-pressed={image === i}
+                aria-label={i === 0 ? "صورة المنتج" : `صورة المنتج ${i + 1}`}
+                aria-pressed={activeImage === i}
               >
                 <img src={src} alt="" width="80" height="100" />
               </button>
             ))}
           </div>
-          <p className="small muted">صور توضيحية؛ الصورة الثانية للإلهام.</p>
         </div>
         <div className="product-info">
           <span className="eyebrow">B40 JERICHO / {product.category}</span>

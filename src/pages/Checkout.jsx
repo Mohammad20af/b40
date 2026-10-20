@@ -1,14 +1,20 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Check, CreditCard } from "lucide-react";
 import { useCart } from "../hooks/useCart";
 import { Empty } from "../components/UI";
 import { storeInfo as branch } from "../data/branches";
 import { deliveryService, orderService } from "../services/store";
 import { money } from "../utils/shop";
+import { useOrders } from "../hooks/useStore";
+import OrderConfirmation from "../components/OrderConfirmation";
 
 export default function Checkout() {
   const { items, subtotal, clear } = useCart();
+  const [params, setParams] = useSearchParams();
+  const orders = useOrders();
+  const orderId = params.get("order");
+  const order = orders.find((entry) => entry.id === orderId);
   const zones = deliveryService.zones();
   const [customer, setCustomer] = useState({
     name: "",
@@ -18,7 +24,6 @@ export default function Checkout() {
     notes: "",
   });
   const [zoneId, setZoneId] = useState("jericho"),
-    [order, setOrder] = useState(null),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const zone = zones.find((z) => z.id === zoneId),
@@ -62,7 +67,7 @@ export default function Checkout() {
         subtotal,
       };
       const savedOrder = await orderService.create(payload);
-      setOrder(savedOrder);
+      setParams({ order: savedOrder.id }, { replace: true });
       clear();
     } catch (error) {
       setError(
@@ -74,39 +79,13 @@ export default function Checkout() {
       setBusy(false);
     }
   }
-  if (order)
+  if (order) return <OrderConfirmation order={order} />;
+  if (orderId)
     return (
-      <div className="container page order-success">
-        <div className="success-icon">
-          <Check size={34} />
-        </div>
-        <h1>تم استلام طلبك بنجاح</h1>
-        <p>
-          رقم طلبك: <bdi>{order.id}</bdi>
-        </p>
-        <div className="summary">
-          <h2>ملخص الطلب</h2>
-          {order.items.map((item) => (
-            <div className="summary-line" key={item.key}>
-              <span>
-                {item.product.name} · الكمية: {item.quantity}
-              </span>
-              <span>{money(item.product.price * item.quantity)}</span>
-            </div>
-          ))}
-          <div className="summary-line">
-            <span>التوصيل</span>
-            <span>{money(order.delivery)}</span>
-          </div>
-          <div className="summary-line total">
-            <span>الإجمالي</span>
-            <strong>{money(order.subtotal + order.delivery)}</strong>
-          </div>
-        </div>
-        <Link className="text-link" to="/shop">
-          العودة للتسوق
-        </Link>
-      </div>
+      <Empty
+        title="الطلب غير موجود"
+        detail="تعذّر العثور على هذا الطلب في المتصفح الحالي."
+      />
     );
   if (!items.length)
     return (
@@ -137,7 +116,7 @@ export default function Checkout() {
               pattern: "[+0-9 \\(\\)\\-]{9,20}",
             })}
             <label>
-              المنطقة
+              منطقة التوصيل
               <select
                 required
                 value={zoneId}
@@ -161,8 +140,10 @@ export default function Checkout() {
               autoComplete: "street-address",
             })}
             <label className="wide">
-              ملاحظات (اختياري)
+              ملاحظات على الطلب
               <textarea
+                placeholder="مثال: يرجى الاتصال قبل التوصيل"
+                rows={3}
                 maxLength={500}
                 value={customer.notes}
                 onChange={(e) =>

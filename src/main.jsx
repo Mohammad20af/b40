@@ -10,6 +10,13 @@ import { CartProvider } from "./hooks/useCart";
 import Home from "./pages/Home";
 import { Empty } from "./components/UI";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { catalogService } from "./services/store";
+
+try {
+  catalogService.migrate();
+} catch {
+  // Keep the existing storefront usable when browser storage is unavailable.
+}
 const Shop = lazy(() => import("./pages/Shop"));
 const Product = lazy(() => import("./pages/Product"));
 const Cart = lazy(() => import("./pages/Cart"));

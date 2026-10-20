@@ -15,6 +15,11 @@ export default defineConfig({
   projects: [
     { name: "desktop", use: { viewport: { width: 1440, height: 1000 } } },
     {
+      name: "tablet",
+      testMatch: "catalog-checkout.spec.js",
+      use: { viewport: { width: 768, height: 1024 }, hasTouch: true },
+    },
+    {
       name: "mobile",
       use: {
         viewport: { width: 390, height: 844 },

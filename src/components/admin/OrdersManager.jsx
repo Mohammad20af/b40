@@ -227,8 +227,10 @@ export function OrderList({ orders, compact = false }) {
                     </div>
                   ))}
                 </div>
-                {order.customer.notes && (
-                  <p className="small muted">ملاحظات: {order.customer.notes}</p>
+                {order.customer.notes?.trim() && (
+                  <p className="small muted order-notes">
+                    ملاحظات على الطلب: {order.customer.notes}
+                  </p>
                 )}
                 <footer>
                   <div>

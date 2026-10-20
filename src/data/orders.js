@@ -1,5 +1,5 @@
-import { products } from "./products";
-import { storeInfo, deliveryZones } from "./branches";
+import { products } from "./products.js";
+import { storeInfo, deliveryZones } from "./branches.js";
 
 export const orderStatuses = [
   {
@@ -11,8 +11,8 @@ export const orderStatuses = [
   },
   {
     id: "preparing",
-    label: "قيد التجهيز",
-    stat: "قيد التجهيز",
+    label: "قيد التحضير",
+    stat: "قيد التحضير",
     next: "ready",
     action: "الطلب جاهز",
   },

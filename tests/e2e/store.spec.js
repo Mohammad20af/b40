@@ -10,7 +10,7 @@ test("navigation, gallery, narrow screens and reduced-motion hero", async ({
   await page.locator(".product-photo").first().click();
   await expect(page).toHaveURL(/\/product\/01$/);
   await page
-    .getByRole("button", { name: "صورة إلهام للإطلالة", exact: true })
+    .getByRole("button", { name: "صورة المنتج 2", exact: true })
     .click();
   await expect(page.locator(".gallery-main img")).toHaveAttribute(
     "src",
@@ -160,7 +160,7 @@ async function fillCheckout(page) {
   await page.getByRole("textbox", { name: "الاسم الكامل" }).fill("عميل تجريبي");
   await page.getByRole("textbox", { name: "رقم الهاتف" }).fill("0500000000");
   await page
-    .getByRole("combobox", { name: "المنطقة", exact: true })
+    .getByRole("combobox", { name: "منطقة التوصيل", exact: true })
     .selectOption("jericho");
   await page
     .getByRole("textbox", { name: "العنوان بالتفصيل" })
@@ -194,7 +194,7 @@ test("checkout saves numbered orders on-site without WhatsApp or external naviga
   await expect(page.locator("input[name=name]")).toBeFocused();
   await fillCheckout(page);
   await page
-    .getByRole("textbox", { name: "ملاحظات (اختياري)" })
+    .getByRole("textbox", { name: "ملاحظات على الطلب" })
     .fill("الاتصال قبل التوصيل");
   await expect(
     page.getByRole("combobox", { name: "اختيار الفرع", exact: true }),
@@ -202,12 +202,12 @@ test("checkout saves numbered orders on-site without WhatsApp or external naviga
   await expect(page.locator(".total")).toContainText("٢٧٣");
   await page.getByRole("button", { name: "تأكيد الطلب", exact: true }).click();
   await expect(
-    page.getByRole("heading", { name: "تم استلام طلبك بنجاح" }),
+    page.getByRole("heading", { name: "تم استلام طلبك" }),
   ).toBeVisible();
   await expect(page.locator(".order-success")).toContainText(
     "رقم طلبك: B40-1001",
   );
-  await expect(page).toHaveURL(/\/checkout$/);
+  await expect(page).toHaveURL(/\/checkout\?order=B40-1001$/);
   await expect(
     page.locator('.order-success a[href^="http"], .whatsapp-preview'),
   ).toHaveCount(0);

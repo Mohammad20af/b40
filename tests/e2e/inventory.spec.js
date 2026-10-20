@@ -223,6 +223,7 @@ test("catalog edits preserve latest stock and migrate added and removed sizes", 
     const created = catalogService.save({
       ...stale,
       id: undefined,
+      sku: undefined,
       sizes: ["36", "38"],
     });
     catalogService.remove(created.id);

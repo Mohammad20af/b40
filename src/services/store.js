@@ -1,12 +1,14 @@
-import { products } from "../data/products";
-import { deliveryZones } from "../data/branches";
-import { demoOrders, orderStatuses } from "../data/orders";
+import { products } from "../data/products.js";
+import { deliveryZones } from "../data/branches.js";
+import { demoOrders, orderStatuses } from "../data/orders.js";
 import { withInventory } from "../utils/inventory.js";
 import { sanitizeCart } from "../utils/shop.js";
+import { defaultSku, normalizeSku, withSkus } from "../utils/catalog.js";
 
 export const storageKeys = {
   products: "b40-products-v1",
   orders: "b40-orders-v1",
+  cart: "b40-cart-v1",
 };
 const changeEvent = "b40:store-change";
 export function storageSnapshot(key) {
@@ -86,12 +88,47 @@ const validOrder = (o) =>
 // Demo persistence adapters. Replace these methods with backend API calls later.
 export const catalogService = {
   list: () =>
-    read(storageKeys.products, products, validProduct).map(withInventory),
+    withSkus(
+      read(storageKeys.products, products, validProduct).map(withInventory),
+    ),
+  migrate() {
+    const snapshot = storageSnapshot(storageKeys.products);
+    // Leave malformed storage untouched; normal reads still use the existing fallback.
+    if (snapshot !== null) {
+      try {
+        const stored = JSON.parse(snapshot);
+        if (!Array.isArray(stored) || !stored.every(validProduct)) return;
+      } catch {
+        return;
+      }
+    }
+    const current = catalogService.list();
+    if (snapshot !== JSON.stringify(current))
+      write(storageKeys.products, current);
+  },
   get: (id) => catalogService.list().find((p) => p.id === id),
   save(product) {
     let record = { ...product, id: product.id || crypto.randomUUID() };
     if (!validProduct(record)) throw new Error("Invalid product");
     const current = catalogService.list();
+    record.sku =
+      normalizeSku(record.sku) ||
+      defaultSku(
+        record.id,
+        new Set(current.filter((p) => p.id !== record.id).map((p) => p.sku)),
+      );
+    if (
+      record.sku.length > 80 ||
+      current.some((p) => p.id !== record.id && p.sku === record.sku)
+    ) {
+      const error = new Error(
+        record.sku.length > 80
+          ? "رمز المنتج يجب ألا يتجاوز 80 حرفاً."
+          : "رمز المنتج مستخدم بالفعل. أدخل رمزاً فريداً.",
+      );
+      error.code = "INVALID_SKU";
+      throw error;
+    }
     const previous = current.find((p) => p.id === record.id);
     record = withInventory({
       ...record,
@@ -131,11 +168,32 @@ export const deliveryService = {
   zones: () => deliveryZones,
   quote: (zoneId) => deliveryZones.find((z) => z.id === zoneId)?.price ?? 0,
 };
+export const cartService = {
+  list(catalog = catalogService.list()) {
+    return sanitizeCart(
+      read(storageKeys.cart, [], () => true),
+      catalog,
+    );
+  },
+  save(entries) {
+    write(
+      storageKeys.cart,
+      entries.map(({ id, size, color, quantity }) => ({
+        id,
+        size,
+        color,
+        quantity,
+      })),
+    );
+  },
+};
 export const orderService = {
   list: () => read(storageKeys.orders, demoOrders, validOrder),
+  get: (id) => orderService.list().find((order) => order.id === id),
   create: async (order) => {
     const save = () => {
-      const checked = sanitizeCart(order.items, catalogService.list());
+      const catalog = catalogService.list();
+      const checked = sanitizeCart(order.items, catalog);
       if (
         !checked.length ||
         checked.length !== order.items.length ||
@@ -150,12 +208,41 @@ export const orderService = {
         throw error;
       }
       const current = orderService.list();
+      const zone = deliveryService.zones().find((z) => z.id === order.zone?.id);
+      if (!zone) throw new Error("Invalid delivery zone");
+      const items = checked.map((entry) => {
+        const product = catalog.find((p) => p.id === entry.id);
+        return {
+          ...entry,
+          product: {
+            id: product.id,
+            sku: product.sku,
+            name: product.name,
+            price: product.price,
+            images: [product.images[0]],
+          },
+        };
+      });
       const lastNumber = current.reduce((last, entry) => {
         const match = /^B40-(\d+)$/.exec(entry.id);
         return match ? Math.max(last, Number(match[1])) : last;
       }, 1000);
       const record = {
         ...order,
+        customer: {
+          ...order.customer,
+          notes:
+            typeof order.customer?.notes === "string"
+              ? order.customer.notes.trim()
+              : "",
+        },
+        items,
+        zone: { ...zone },
+        delivery: zone.price,
+        subtotal: items.reduce(
+          (sum, item) => sum + item.product.price * item.quantity,
+          0,
+        ),
         id: `B40-${lastNumber + 1}`,
         simulated: false,
         status: "new",

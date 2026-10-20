@@ -33,7 +33,9 @@ test("product upload, replacement, removal, persistence, storefront purchase and
     .getByLabel("اختيار صورة", { exact: true })
     .setInputFiles("public/images/hoodie.jpg");
   await expect(preview).not.toHaveAttribute("src", original);
-  await dialog.getByRole("button", { name: "إزالة الصورة" }).click();
+  await dialog
+    .getByRole("button", { name: "إزالة الصورة", exact: true })
+    .click();
   await expect(preview).toHaveCount(0);
   await dialog.getByRole("button", { name: "حفظ المنتج" }).click();
   await expect(dialog.getByRole("alert")).toContainText("اختر صورة");
@@ -92,7 +94,7 @@ test("order transitions, cancellation, counters, filters and searches persist", 
     exact: true,
   });
   await order.getByRole("button", { name: "بدء التجهيز" }).click();
-  await expect(order.locator(".status-badge")).toHaveText("قيد التجهيز");
+  await expect(order.locator(".status-badge")).toHaveText("قيد التحضير");
   await expect(page.locator(".stat-preparing strong")).toHaveText("2");
   await page.reload();
   await order.getByRole("button", { name: "الطلب جاهز" }).click();
@@ -141,6 +143,7 @@ test("PNG drag-and-drop, WEBP upload, gallery preservation and live catalog upda
   await signInDemo(page);
   const storefront = await context.newPage();
   await storefront.goto("/product/01");
+  await page.bringToFront();
   await page.goto("/admin/products");
   await page
     .getByRole("button", { name: "تعديل تيشيرت أساسي أوفرسايز" })
@@ -174,17 +177,21 @@ test("PNG drag-and-drop, WEBP upload, gallery preservation and live catalog upda
     /^data:image\/webp/,
   );
   await expect(storefront.locator(".thumbnails button")).toHaveCount(2);
+  await storefront.bringToFront();
   await storefront
-    .getByRole("button", { name: "صورة إلهام للإطلالة", exact: true })
+    .getByRole("button", { name: "صورة المنتج 2", exact: true })
     .click();
   await expect(storefront.locator(".gallery-main img")).toHaveAttribute(
     "src",
     "/images/editorial.jpg",
   );
+  await page.bringToFront();
   await page
     .getByRole("button", { name: "تعديل تيشيرت أساسي أوفرسايز" })
     .click();
-  await dialog.getByRole("button", { name: "إزالة الصورة" }).click();
+  await dialog
+    .getByRole("button", { name: "إزالة الصورة", exact: true })
+    .click();
   await expect(dialog.getByAltText("معاينة صورة المنتج")).toHaveAttribute(
     "src",
     "/images/editorial.jpg",

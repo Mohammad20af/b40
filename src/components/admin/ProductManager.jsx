@@ -1,11 +1,11 @@
-import { useRef, useState } from "react";
-import { Plus, Pencil, Trash2, Search, ImagePlus, Upload } from "lucide-react";
+import { useState } from "react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { categories } from "../../data/products";
 import { storeInfo } from "../../data/branches";
 import { catalogService } from "../../services/store";
-import { uploadProductImage } from "../../services/images";
 import { money } from "../../utils/shop";
 import AdminDialog from "./AdminDialog";
+import ProductImages from "./ProductImages";
 
 export default function ProductManager({ products }) {
   const [search, setSearch] = useState("");
@@ -20,7 +20,7 @@ export default function ProductManager({ products }) {
   const filtered = products.filter(
     (p) =>
       (!category || p.category === category) &&
-      `${p.name} ${p.category}`
+      `${p.name} ${p.category} ${p.sku}`
         .toLocaleLowerCase()
         .includes(search.trim().toLocaleLowerCase()),
   );
@@ -67,7 +67,7 @@ export default function ProductManager({ products }) {
           <Search size={19} />
           <input
             aria-label="ابحث عن منتج"
-            placeholder="ابحث باسم المنتج أو التصنيف…"
+            placeholder="ابحث باسم المنتج أو التصنيف أو SKU…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -97,6 +97,9 @@ export default function ProductManager({ products }) {
                   </span>
                 </div>
                 <h2>{p.name}</h2>
+                <p className="small muted">
+                  SKU: <bdi>{p.sku}</bdi>
+                </p>
                 <strong className="admin-product-price">
                   {money(p.price)}
                 </strong>
@@ -184,6 +187,7 @@ export default function ProductManager({ products }) {
 function ProductEditor({ product, initialCategory, close, saved }) {
   const [form, setForm] = useState({
     name: product?.name || "",
+    sku: product?.sku || "",
     price: product?.price ?? "",
     category: product?.category || initialCategory || categories[0],
     sizes: product?.sizes.join(", ") || "S, M, L, XL",
@@ -194,31 +198,7 @@ function ProductEditor({ product, initialCategory, close, saved }) {
   const [images, setImages] = useState(product?.images || []);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const fileRef = useRef(null);
-  const request = useRef(0);
   const change = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
-  async function choose(file) {
-    if (!file) return;
-    const version = ++request.current;
-    setBusy(true);
-    setError("");
-    try {
-      const image = await uploadProductImage(file);
-      if (request.current === version)
-        setImages((current) => [image, ...current.slice(1)]);
-    } catch (e) {
-      if (request.current === version) setError(e.message);
-    } finally {
-      if (request.current === version) setBusy(false);
-    }
-  }
-  function removeImage() {
-    request.current++;
-    setBusy(false);
-    setImages((current) => current.slice(1));
-    if (fileRef.current) fileRef.current.value = "";
-  }
   function submit(e) {
     e.preventDefault();
     if (busy) return;
@@ -271,9 +251,11 @@ function ProductEditor({ product, initialCategory, close, saved }) {
         branch: product?.branch || storeInfo,
       });
       saved();
-    } catch {
+    } catch (error) {
       setError(
-        "تعذّر حفظ المنتج. قد تكون مساحة التخزين ممتلئة؛ جرّب صورة أصغر وتحقق من إعدادات المتصفح.",
+        error.code === "INVALID_SKU"
+          ? error.message
+          : "تعذّر حفظ المنتج. قد تكون مساحة التخزين ممتلئة؛ جرّب صورة أصغر وتحقق من إعدادات المتصفح.",
       );
     }
   }
@@ -281,6 +263,16 @@ function ProductEditor({ product, initialCategory, close, saved }) {
     <AdminDialog title={product ? "تعديل منتج" : "إضافة منتج"} close={close}>
       <form onSubmit={submit}>
         <div className="form-grid">
+          <label className="wide">
+            رمز المنتج / SKU
+            <input
+              dir="ltr"
+              maxLength={80}
+              value={form.sku}
+              placeholder="يُنشأ تلقائياً عند تركه فارغاً"
+              onChange={(event) => change("sku", event.target.value)}
+            />
+          </label>
           <label className="wide">
             اسم المنتج
             <input
@@ -360,60 +352,13 @@ function ProductEditor({ product, initialCategory, close, saved }) {
             />
           </label>
         </div>
-        <div
-          className={`admin-upload ${dragging ? "is-dragging" : ""}`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragging(false);
-            choose(e.dataTransfer.files[0]);
-          }}
-        >
-          {images.length ? (
-            <img
-              className="admin-image-preview"
-              src={images[0]}
-              alt="معاينة صورة المنتج"
-            />
-          ) : (
-            <ImagePlus size={34} aria-hidden="true" />
-          )}
-          <strong>صورة المنتج</strong>
-          <span className="small muted">
-            اسحب الصورة هنا أو اخترها من جهازك
-          </span>
-          <label className="button-outline admin-file-label">
-            <Upload size={16} />
-            {images.length ? "استبدال الصورة" : "اختيار صورة"}
-            <input
-              ref={fileRef}
-              type="file"
-              accept="image/*"
-              aria-label="اختيار صورة"
-              onChange={(e) => {
-                choose(e.target.files[0]);
-                e.target.value = "";
-              }}
-            />
-          </label>
-          {(images.length > 0 || busy) && (
-            <button
-              type="button"
-              className="text-button admin-danger"
-              onClick={removeImage}
-            >
-              إزالة الصورة
-            </button>
-          )}
-          <span className="small muted">
-            JPG / JPEG / PNG / WEBP · حتى 10 MB
-          </span>
-          {busy && <span role="status">جارٍ تجهيز الصورة…</span>}
-        </div>
+        <ProductImages
+          images={images}
+          setImages={setImages}
+          busy={busy}
+          setBusy={setBusy}
+          setError={setError}
+        />
         {error && (
           <p className="error" role="alert">
             {error}

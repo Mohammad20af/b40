@@ -1,4 +1,7 @@
 export const DEFAULT_STOCK = 5;
+export const LOW_STOCK_THRESHOLD = 2;
+export const isLowStock = (quantity) =>
+  quantity > 0 && quantity <= LOW_STOCK_THRESHOLD;
 
 export function sizeStock(product, size) {
   if (!product?.sizes.includes(size)) return 0;
@@ -28,7 +31,7 @@ export const canPurchase = (product) =>
 export function stockStatus(quantity) {
   return quantity === 0
     ? { label: "نفد", className: "status-cancelled" }
-    : quantity <= 2
+    : isLowStock(quantity)
       ? { label: "مخزون منخفض", className: "status-preparing" }
       : { label: "متوفر", className: "status-ready" };
 }

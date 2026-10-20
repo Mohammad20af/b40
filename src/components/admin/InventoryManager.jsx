@@ -9,7 +9,12 @@ import {
   Plus,
 } from "lucide-react";
 import { catalogService } from "../../services/store";
-import { sizeStock, stockStatus, totalStock } from "../../utils/inventory.js";
+import {
+  isLowStock,
+  sizeStock,
+  stockStatus,
+  totalStock,
+} from "../../utils/inventory.js";
 
 function StockBadge({ quantity }) {
   const status = stockStatus(quantity);
@@ -96,11 +101,7 @@ export default function InventoryManager({ products }) {
   const stats = [
     ["إجمالي المنتجات", products.length, Package],
     ["إجمالي القطع في المخزون", totals.reduce((sum, n) => sum + n, 0), Boxes],
-    [
-      "منتجات مخزونها منخفض",
-      totals.filter((n) => n > 0 && n <= 2).length,
-      TriangleAlert,
-    ],
+    ["منتجات مخزونها منخفض", totals.filter(isLowStock).length, TriangleAlert],
     ["منتجات نفدت من المخزون", totals.filter((n) => n === 0).length, PackageX],
   ];
   const query = search.trim().toLocaleLowerCase();

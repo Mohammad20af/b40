@@ -888,6 +888,7 @@ body:has(.quick-dialog[open]) {
 }
 .thumbnails {
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
   margin-top: 15px;
 }
@@ -1149,6 +1150,16 @@ body:has(.quick-dialog[open]) {
 .order-success {
   max-width: 850px;
   text-align: center;
+}
+.confirmation-customer,
+.order-notes {
+  overflow-wrap: anywhere;
+}
+.order-notes {
+  white-space: pre-wrap;
+}
+.order-notes h2 {
+  margin-top: 24px;
 }
 .success-icon {
   display: grid;

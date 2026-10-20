@@ -17,6 +17,7 @@ import { money } from "../utils/shop";
 import { logoutDemo } from "../services/demoAuth";
 import ProductManager from "../components/admin/ProductManager";
 import InventoryManager from "../components/admin/InventoryManager";
+import DashboardStats from "../components/admin/DashboardStats";
 import OrdersManager, {
   OrderStats,
   OrderList,
@@ -88,7 +89,8 @@ export default function Admin() {
         )}
         {section === "" ? (
           <>
-            <OrderStats orders={orders} productCount={products.length} />
+            <DashboardStats products={products} orders={orders} />
+            <OrderStats orders={orders} />
             <div className="admin-welcome">
               <div>
                 <span className="eyebrow">كل التفاصيل في مكان واحد</span>
